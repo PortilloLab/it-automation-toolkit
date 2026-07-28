@@ -7,6 +7,7 @@ from itat.commands.doctor import DoctorCommand
 from itat.commands.audit import AuditCommand
 from itat.commands.version import VersionCommand
 from itat.commands.skill import SkillCommand
+from itat.commands.ticket import TicketCommand
 from itat.core.registry import CommandRegistry
 
 
@@ -27,6 +28,7 @@ class Application:
         self.registry.register(AuditCommand())
         self.registry.register(VersionCommand())
         self.registry.register(SkillCommand())
+        self.registry.register(TicketCommand())
 
 
 
