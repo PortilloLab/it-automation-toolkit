@@ -11,6 +11,8 @@
 
 ## ✨ Key Features
 
+- 🎛️ **Plataforma Interactiva de Menús (`itat` o `itat menu`)**
+  - Consola interactiva visual con menús numerados para navegar por todas las herramientas sin memorizar comandos.
 - 🖥️ **Full Hardware & Network Inventory (`itat inventory`)**
   - Collects CPU, RAM & Swap memory, physical disk partitions, active network interfaces (IP/MAC), and top resource-consuming processes.
   - Generates executive reports in **Dark-Mode Glassmorphism HTML**, **Markdown**, and **JSON**.
@@ -18,6 +20,8 @@
   - Diagnoses CPU load, memory pressure, root disk capacity, load averages, and outbound internet/DNS connectivity.
 - 🛡️ **Security Policy & Compliance Audit (`itat audit`)**
   - Evaluates system state against configurable security policies (`DiskSpacePolicy`, `MemoryUsagePolicy`, `UserSecurityPolicy`).
+- 🎫 **Service Desk & Ticket Management (`itat ticket`)**
+  - Local SQLite database to record client incidents, resolution notes, and export monthly executive billing reports.
 - 🔌 **Remote Connectors (`src/itat/connectors/`)**
   - Sends system metrics and alerts directly to external REST APIs/Webhooks (`HTTPConnector`) or executes remote administration over SSH (`SSHConnector`).
 - 🧩 **Specialized Client Support Skills (`itat skill`)**
