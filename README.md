@@ -27,7 +27,7 @@
 - 🧩 **Specialized Client Support Skills (`itat skill`)**
   - Modular plugin architecture (`BaseSkill`) to diagnose, analyze logs, and auto-repair specific software stacks:
     - **Nginx / Web Services (`WebServiceSkill`)**
-    - **Docker Daemon Service (systemd integration via `WebServiceSkill`)**
+    - **Docker Daemon Status** (via `WebServiceSkill`, systemd-based health/restart — no per-container diagnostics yet)
     - **MySQL / MariaDB (`MySQLSkill`)**
     - **Power BI On-Premises Data Gateway & Cloud Connectivity (`PowerBISkill`)**
 
