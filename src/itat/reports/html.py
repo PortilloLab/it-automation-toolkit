@@ -62,7 +62,7 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         """
 
     # User sessions section
-    users_data = inventory_data.get("users", {})
+    users_data = data.get("users", {})
     user_sessions = users_data.get("active_users", []) if isinstance(users_data, dict) else []
     user_rows = ""
     for u in user_sessions:

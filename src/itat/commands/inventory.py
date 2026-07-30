@@ -5,6 +5,7 @@ Inventory command.
 from itat.core.command import Command
 from itat.inventory.scanner import scan
 from itat.inventory.export import export_json, export_markdown
+from itat.core.serialization import to_dict
 from itat.i18n import t
 
 
@@ -25,7 +26,7 @@ class InventoryCommand(Command):
         memory = inventory["memory"]
         disk = inventory["disk"]
         network = inventory["network"]
-        users_info = inventory.get("users", {})
+        users_info = to_dict(inventory.get("users", {}))
 
         # Parse export arguments
         if "--json" in args:
