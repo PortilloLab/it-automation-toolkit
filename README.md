@@ -14,7 +14,7 @@
 - 🎛️ **Plataforma Interactiva de Menús (`itat` o `itat menu`)**
   - Consola interactiva visual con menús numerados para navegar por todas las herramientas sin memorizar comandos.
 - 🖥️ **Full Hardware & Network Inventory (`itat inventory`)**
-  - Collects CPU, RAM & Swap memory, physical disk partitions, active network interfaces (IP/MAC), and top resource-consuming processes.
+  - Collects CPU, RAM & Swap memory, physical disk partitions, active network interfaces (IP/MAC), active user sessions, and top resource-consuming processes.
   - Generates executive reports in **Dark-Mode Glassmorphism HTML**, **Markdown**, and **JSON**.
 - 🩺 **System Doctor & Health Check (`itat doctor`)**
   - Diagnoses CPU load, memory pressure, root disk capacity, load averages, and outbound internet/DNS connectivity.
@@ -22,12 +22,12 @@
   - Evaluates system state against configurable security policies (`DiskSpacePolicy`, `MemoryUsagePolicy`, `UserSecurityPolicy`).
 - 🎫 **Service Desk & Ticket Management (`itat ticket`)**
   - Local SQLite database to record client incidents, resolution notes, and export monthly executive billing reports.
-- 🔌 **Remote Connectors (`src/itat/connectors/`)**
-  - Sends system metrics and alerts directly to external REST APIs/Webhooks (`HTTPConnector`) or executes remote administration over SSH (`SSHConnector`).
+- 🔌 **Remote Connectors & Automation SDK (`src/itat/connectors/`)**
+  - Modular Python classes (`HTTPConnector` & `SSHConnector`) to transmit telemetry, trigger REST API webhooks, or perform secure SSH administration.
 - 🧩 **Specialized Client Support Skills (`itat skill`)**
   - Modular plugin architecture (`BaseSkill`) to diagnose, analyze logs, and auto-repair specific software stacks:
     - **Nginx / Web Services (`WebServiceSkill`)**
-    - **Docker Containers**
+    - **Docker Daemon Service (systemd integration via `WebServiceSkill`)**
     - **MySQL / MariaDB (`MySQLSkill`)**
     - **Power BI On-Premises Data Gateway & Cloud Connectivity (`PowerBISkill`)**
 
@@ -47,8 +47,8 @@ cd it-automation-toolkit
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies and ITAT CLI
-pip install -e .
+# Install dependencies and ITAT CLI (development mode)
+pip install -e .[dev]
 ```
 
 ### 2. Verify Installation
@@ -98,8 +98,8 @@ itat skill health
 # Analyze application log files for error patterns
 itat skill logs --name mysql
 
-# Execute automated remediation / service restart
-itat skill fix --name mysql
+# Execute automated remediation / service restart (includes safety confirmation prompt)
+itat skill fix --name mysql --yes
 ```
 
 ---
