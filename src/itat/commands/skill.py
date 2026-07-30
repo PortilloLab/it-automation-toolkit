@@ -47,10 +47,11 @@ class SkillCommand(Command):
             skill_name = self._get_arg_value(args, "--name") or self._get_arg_value(args, "-n")
             if not skill_name and len(args) > 1 and not args[1].startswith("-"):
                 skill_name = args[1]
-            return self._handle_fix(skill_name)
+            auto_yes = "--yes" in args or "-y" in args
+            return self._handle_fix(skill_name, auto_yes)
         else:
             print(f"Unknown skill subcommand: '{subcommand}'")
-            print("Usage: itat skill [list | health | logs | fix] [--name <skill_name>]")
+            print("Usage: itat skill [list | health | logs | fix] [--name <skill_name>] [--yes]")
             return 1
 
     def _handle_list(self) -> int:
@@ -100,10 +101,18 @@ class SkillCommand(Command):
             print("-" * 60)
         return 0
 
-    def _handle_fix(self, skill_name: Optional[str]) -> int:
+    def _handle_fix(self, skill_name: Optional[str], auto_yes: bool = False) -> int:
         if not skill_name:
-            print("Error: Specify a skill name to fix, e.g.: itat skill fix --name web_service")
+            print("Error: Specify a skill name to fix, e.g.: itat skill fix --name web_service --yes")
             return 1
+
+        if not auto_yes:
+            print(f"⚠️  WARNING: Executing auto-fix for '{skill_name}' may restart services on this machine.")
+            confirm = input("Are you sure you want to proceed? [y/N]: ").strip().lower()
+            if confirm not in ("y", "yes"):
+                print("Aborted auto-fix execution.")
+                return 0
+
         print("=" * 60)
         print(f"ITAT Skills - Executing Auto-Fix for '{skill_name}'")
         print("=" * 60)
@@ -115,10 +124,3 @@ class SkillCommand(Command):
                 print(f"       ✔ Action taken: {act}")
         print("=" * 60)
         return 0
-
-    def _get_arg_value(self, args: List[str], flag: str) -> Optional[str]:
-        if flag in args:
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                return args[idx + 1]
-        return None

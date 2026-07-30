@@ -2,6 +2,7 @@
 Ticket Command for managing IT service tickets and ITSM records.
 """
 
+import html
 from typing import List, Optional
 from itat.core.command import Command
 from itat.tickets import TicketDatabase
@@ -135,22 +136,28 @@ class TicketCommand(Command):
         rows_html = ""
         for tk in tickets:
             status_cls = "status-open" if tk['status'] == 'OPEN' else "status-resolved"
+            client_esc = html.escape(str(tk['client_name']))
+            title_esc = html.escape(str(tk['title']))
+            status_esc = html.escape(str(tk['status']))
+            priority_esc = html.escape(str(tk['priority']))
+            created_esc = html.escape(str(tk['created_at']))
             rows_html += f"""
             <tr>
                 <td>#{tk['id']}</td>
-                <td>{tk['client_name']}</td>
-                <td>{tk['title']}</td>
-                <td><span class="badge {status_cls}">{tk['status']}</span></td>
-                <td>{tk['priority']}</td>
-                <td>{tk['created_at']}</td>
+                <td>{client_esc}</td>
+                <td>{title_esc}</td>
+                <td><span class="badge {status_cls}">{status_esc}</span></td>
+                <td>{priority_esc}</td>
+                <td>{created_esc}</td>
             </tr>
             """
 
+        empty_msg = html.escape(t('no_tickets_found'))
         html_content = f"""<!DOCTYPE html>
-<html lang="es">
+<html lang="{t.lang}">
 <head>
     <meta charset="UTF-8">
-    <title>ITAT Service Desk - Executive Ticket Report</title>
+    <title>{t('ticket_report_title')}</title>
     <style>
         body {{ font-family: 'Segoe UI', system-ui, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 30px; }}
         .card {{ background: #1e293b; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }}
@@ -165,21 +172,21 @@ class TicketCommand(Command):
 </head>
 <body>
     <div class="card">
-        <h1>🎫 ITAT Service Desk - Informes de Tickets</h1>
-        <p>Reporte consolidado de incidencias y soporte técnico a clientes.</p>
+        <h1>🎫 {t('ticket_report_title')}</h1>
+        <p>{t('ticket_report_subtitle')}</p>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Título / Incidencia</th>
-                    <th>Estado</th>
-                    <th>Prioridad</th>
-                    <th>Fecha de Creación</th>
+                    <th>{t('id')}</th>
+                    <th>{t('client')}</th>
+                    <th>{t('title_column')}</th>
+                    <th>{t('status')}</th>
+                    <th>{t('priority')}</th>
+                    <th>{t('created_at')}</th>
                 </tr>
             </thead>
             <tbody>
-                {rows_html if rows_html else "<tr><td colspan='6'>Sin tickets registrados.</td></tr>"}
+                {rows_html if rows_html else f"<tr><td colspan='6'>{empty_msg}</td></tr>"}
             </tbody>
         </table>
     </div>
@@ -189,10 +196,3 @@ class TicketCommand(Command):
             f.write(html_content)
         print(f"✔ Executive Ticket HTML Report generated at: {html_file}")
         return 0
-
-    def _get_arg_value(self, args: List[str], flag: str) -> Optional[str]:
-        if flag in args:
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                return args[idx + 1]
-        return None

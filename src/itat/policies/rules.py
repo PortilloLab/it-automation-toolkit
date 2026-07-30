@@ -20,12 +20,12 @@ class DiskSpacePolicy(Policy):
 
     def evaluate(self, inventory: Dict[str, Any]) -> PolicyResult:
         disk_data = inventory.get("disk", {})
-        partitions = getattr(disk_data, "partitions", []) if hasattr(disk_data, "partitions") else disk_data.get("partitions", [])
+        partitions = disk_data.get("partitions", [])
 
         violations = []
         for part in partitions:
-            used_pct = getattr(part, "used_percent", None) if hasattr(part, "used_percent") else part.get("used_percent")
-            mount = getattr(part, "mountpoint", None) if hasattr(part, "mountpoint") else part.get("mountpoint")
+            used_pct = part.get("used_percent") if isinstance(part, dict) else getattr(part, "used_percent", None)
+            mount = part.get("mountpoint") if isinstance(part, dict) else getattr(part, "mountpoint", None)
             if used_pct is not None and used_pct > self.max_usage_percent:
                 violations.append(f"{mount} ({used_pct}%)")
 
@@ -59,7 +59,7 @@ class MemoryUsagePolicy(Policy):
 
     def evaluate(self, inventory: Dict[str, Any]) -> PolicyResult:
         mem_data = inventory.get("memory", {})
-        used_pct = getattr(mem_data, "used_percent", None) if hasattr(mem_data, "used_percent") else mem_data.get("used_percent")
+        used_pct = mem_data.get("used_percent") if isinstance(mem_data, dict) else getattr(mem_data, "used_percent", None)
 
         if used_pct is not None and used_pct > self.max_usage_percent:
             return PolicyResult(
@@ -88,7 +88,7 @@ class UserSecurityPolicy(Policy):
 
     def evaluate(self, inventory: Dict[str, Any]) -> PolicyResult:
         sys_data = inventory.get("system", {})
-        user = getattr(sys_data, "current_user", None) if hasattr(sys_data, "current_user") else sys_data.get("current_user")
+        user = sys_data.get("current_user") if isinstance(sys_data, dict) else getattr(sys_data, "current_user", None)
 
         if user == "root":
             return PolicyResult(

@@ -1,9 +1,15 @@
 """
 Unit tests for ITAT Specialized Skills framework.
+Includes mocks for subprocess and socket to run deterministically in CI environments.
 """
 
+from unittest.mock import patch, MagicMock
+import socket
 from itat.skills.base import BaseSkill, SkillResult, SkillStatus
 from itat.skills.manager import SkillManager
+from itat.skills.mysql import MySQLSkill
+from itat.skills.powerbi import PowerBISkill
+from itat.skills.builtin import WebServiceSkill
 
 
 class DummySkill(BaseSkill):
@@ -38,45 +44,64 @@ def test_base_skill_and_manager():
     skill = DummySkill()
     manager.register(skill)
 
-    # Test list skills
     skill_list = manager.list_skills()
     assert len(skill_list) == 1
     assert skill_list[0]["name"] == "dummy"
 
-    # Test health check
     health_res = manager.run_health_checks("dummy")
     assert "dummy" in health_res
     assert health_res["dummy"].status == SkillStatus.OK
     assert health_res["dummy"].is_healthy() is True
 
-    # Test log analysis
     log_res = manager.run_log_analysis("dummy")
     assert log_res["dummy"].status == SkillStatus.OK
 
-    # Test auto-fix
     fix_res = manager.run_auto_fix("dummy")
     assert fix_res.status == SkillStatus.OK
     assert "Restarted dummy service" in fix_res.actions_taken
 
 
-from itat.skills.mysql import MySQLSkill
-from itat.skills.powerbi import PowerBISkill
+@patch("subprocess.run")
+@patch("socket.create_connection")
+def test_mysql_skill_mocked(mock_socket, mock_subproc):
+    mock_subproc.return_value = MagicMock(returncode=0, stdout="active\n")
+    mock_socket.return_value.__enter__.return_value = MagicMock()
 
-
-def test_mysql_and_powerbi_skills():
     mysql = MySQLSkill()
-    assert mysql.name == "mysql"
-    assert mysql.target_service == "mysql"
-    health_mysql = mysql.check_health()
-    assert health_mysql.status in (SkillStatus.OK, SkillStatus.WARNING, SkillStatus.CRITICAL)
+    health = mysql.check_health()
+    assert health.status == SkillStatus.OK
+    assert "active" in health.message.lower()
 
-    powerbi = PowerBISkill()
-    assert powerbi.name == "powerbi"
-    health_pbi = powerbi.check_health()
-    assert health_pbi.status in (SkillStatus.OK, SkillStatus.WARNING, SkillStatus.ERROR)
+    mock_subproc.return_value = MagicMock(returncode=1, stdout="inactive\n")
+    health_fail = mysql.check_health()
+    assert health_fail.status == SkillStatus.CRITICAL
+
+
+@patch("subprocess.run")
+@patch("socket.create_connection")
+def test_powerbi_skill_mocked(mock_socket, mock_subproc):
+    mock_socket.return_value.__enter__.return_value = MagicMock()
+    mock_subproc.return_value = MagicMock(returncode=0, stdout="active\n")
+
+    pbi = PowerBISkill()
+    health = pbi.check_health()
+    assert health.status == SkillStatus.OK
+
+    # Mock cloud connectivity timeout (socket.timeout)
+    mock_socket.side_effect = socket.timeout("Connection timeout")
+    health_no_cloud = pbi.check_health()
+    assert health_no_cloud.status == SkillStatus.ERROR
+
+
+def test_webservice_skill():
+    web = WebServiceSkill(service_name="nginx")
+    assert web.name == "nginx"
+    assert web.target_service == "nginx"
 
 
 if __name__ == "__main__":
     test_base_skill_and_manager()
-    test_mysql_and_powerbi_skills()
+    test_mysql_skill_mocked()
+    test_powerbi_skill_mocked()
+    test_webservice_skill()
     print("All skill unit tests passed!")

@@ -2,43 +2,42 @@
 HTML Report Generator.
 
 Generates sleek, dark-themed HTML executive reports for inventory and policy audits.
+Fully safe against HTML/XSS injection and integrated with i18n.
 """
 
-from dataclasses import is_dataclass, asdict
+import html
 from typing import Any, Dict, List
-
-
-def _to_dict(obj: Any) -> Any:
-    if is_dataclass(obj):
-        return asdict(obj)
-    if isinstance(obj, dict):
-        return {k: _to_dict(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_to_dict(item) for item in obj]
-    return obj
+from itat.core.serialization import to_dict
+from itat.i18n import t
 
 
 def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any] = None, output_path: str = "report.html") -> str:
     """
     Generate an HTML report with dark mode glassmorphism UI.
+    Uses html.escape to prevent XSS injection.
     """
-    data = _to_dict(inventory_data)
+    data = to_dict(inventory_data)
     sys = data.get("system", {})
     cpu = data.get("cpu", {})
     mem = data.get("memory", {})
     disk = data.get("disk", {})
     net = data.get("network", {})
 
+    lang_code = t.lang
+
     # Disk rows
     disk_rows = ""
     for part in disk.get("partitions", []):
         pct = part.get("used_percent", 0)
         badge_class = "badge-danger" if pct > 85 else ("badge-warning" if pct > 70 else "badge-success")
+        device_esc = html.escape(str(part.get('device', '')))
+        mount_esc = html.escape(str(part.get('mountpoint', '')))
+        fstype_esc = html.escape(str(part.get('fstype', '')))
         disk_rows += f"""
         <tr>
-            <td><code>{part.get('device')}</code></td>
-            <td><code>{part.get('mountpoint')}</code></td>
-            <td><span class="pill">{part.get('fstype')}</span></td>
+            <td><code>{device_esc}</code></td>
+            <td><code>{mount_esc}</code></td>
+            <td><span class="pill">{fstype_esc}</span></td>
             <td>{part.get('used_gb')} GB / {part.get('total_gb')} GB</td>
             <td>{part.get('free_gb')} GB</td>
             <td><span class="badge {badge_class}">{pct}%</span></td>
@@ -50,12 +49,15 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
     for iface in net.get("interfaces", []):
         is_up = iface.get("is_up", False)
         status_badge = '<span class="badge badge-success">UP</span>' if is_up else '<span class="badge badge-danger">DOWN</span>'
+        iface_esc = html.escape(str(iface.get('interface', '')))
+        ip_esc = html.escape(str(iface.get('ip_address', '')))
+        mac_esc = html.escape(str(iface.get('mac_address', '')))
         net_rows += f"""
         <tr>
-            <td><code>{iface.get('interface')}</code></td>
+            <td><code>{iface_esc}</code></td>
             <td>{status_badge}</td>
-            <td><code>{iface.get('ip_address')}</code></td>
-            <td><code>{iface.get('mac_address')}</code></td>
+            <td><code>{ip_esc}</code></td>
+            <td><code>{mac_esc}</code></td>
         </tr>
         """
 
@@ -65,9 +67,9 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         audit_rows = ""
         for r in audit_results:
             passed = getattr(r, "passed", False)
-            p_name = getattr(r, "policy_name", "Policy")
-            msg = getattr(r, "message", "")
-            sev = getattr(r, "severity", "MEDIUM")
+            p_name = html.escape(str(getattr(r, "policy_name", "Policy")))
+            msg = html.escape(str(getattr(r, "message", "")))
+            sev = html.escape(str(getattr(r, "severity", "MEDIUM")))
             status_b = '<span class="badge badge-success">PASSED</span>' if passed else '<span class="badge badge-danger">VIOLATION</span>'
             audit_rows += f"""
             <tr>
@@ -79,14 +81,14 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
             """
         audit_section = f"""
         <div class="card">
-            <h2>🛡️ Security & Compliance Audit</h2>
+            <h2>🛡️ {t('security_audit')}</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Policy</th>
-                        <th>Severity</th>
-                        <th>Status</th>
-                        <th>Details</th>
+                        <th>{t('policy')}</th>
+                        <th>{t('severity')}</th>
+                        <th>{t('status')}</th>
+                        <th>{t('details')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,12 +98,19 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         </div>
         """
 
+    host_esc = html.escape(str(sys.get('hostname', 'localhost')))
+    os_esc = html.escape(str(sys.get('operating_system', 'N/A')))
+    kernel_esc = html.escape(str(sys.get('kernel', 'N/A')))
+    arch_esc = html.escape(str(sys.get('architecture', 'N/A')))
+    py_esc = html.escape(str(sys.get('python_version', 'N/A')))
+    user_esc = html.escape(str(sys.get('current_user', 'N/A')))
+
     html_content = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="{lang_code}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITAT System Report - {sys.get('hostname')}</title>
+    <title>ITAT System Report - {host_esc}</title>
     <style>
         :root {{
             --bg-color: #0f172a;
@@ -213,25 +222,25 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         <div class="header">
             <div>
                 <h1>IT Automation Toolkit</h1>
-                <span class="text-muted">Executive System Infrastructure Report</span>
+                <span class="text-muted">{t('exec_report')}</span>
             </div>
             <div>
-                <span class="pill">Host: {sys.get('hostname')}</span>
+                <span class="pill">Host: {host_esc}</span>
             </div>
         </div>
 
         <div class="grid">
             <div class="card">
-                <h2>🖥️ System Overview</h2>
-                <div class="metric-row"><span class="metric-label">OS:</span><span>{sys.get('operating_system')}</span></div>
-                <div class="metric-row"><span class="metric-label">Kernel:</span><span>{sys.get('kernel')}</span></div>
-                <div class="metric-row"><span class="metric-label">Architecture:</span><span>{sys.get('architecture')}</span></div>
-                <div class="metric-row"><span class="metric-label">Python:</span><span>{sys.get('python_version')}</span></div>
-                <div class="metric-row"><span class="metric-label">User:</span><span>{sys.get('current_user')}</span></div>
+                <h2>🖥️ {t('system_overview')}</h2>
+                <div class="metric-row"><span class="metric-label">OS:</span><span>{os_esc}</span></div>
+                <div class="metric-row"><span class="metric-label">Kernel:</span><span>{kernel_esc}</span></div>
+                <div class="metric-row"><span class="metric-label">Architecture:</span><span>{arch_esc}</span></div>
+                <div class="metric-row"><span class="metric-label">Python:</span><span>{py_esc}</span></div>
+                <div class="metric-row"><span class="metric-label">User:</span><span>{user_esc}</span></div>
             </div>
 
             <div class="card">
-                <h2>⚡ Hardware Resources</h2>
+                <h2>⚡ {t('hardware_resources')}</h2>
                 <div class="metric-row"><span class="metric-label">CPU Cores:</span><span>{cpu.get('physical_cores')} Physical / {cpu.get('logical_cores')} Logical</span></div>
                 <div class="metric-row"><span class="metric-label">CPU Frequency:</span><span>{cpu.get('current_frequency')} MHz</span></div>
                 <div class="metric-row"><span class="metric-label">RAM Usage:</span><span>{mem.get('used_gb')} GB / {mem.get('total_gb')} GB ({mem.get('used_percent')}%)</span></div>
@@ -242,16 +251,16 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         {audit_section}
 
         <div class="card">
-            <h2>💽 Storage Partitions</h2>
+            <h2>💽 {t('storage_partitions')}</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Device</th>
-                        <th>Mountpoint</th>
-                        <th>Filesystem</th>
-                        <th>Usage</th>
-                        <th>Free</th>
-                        <th>Percent</th>
+                        <th>{t('device')}</th>
+                        <th>{t('mountpoint')}</th>
+                        <th>{t('filesystem')}</th>
+                        <th>{t('usage')}</th>
+                        <th>{t('free')}</th>
+                        <th>{t('percent')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -261,14 +270,14 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         </div>
 
         <div class="card">
-            <h2>🌐 Network Interfaces</h2>
+            <h2>🌐 {t('network_interfaces')}</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Interface</th>
-                        <th>Status</th>
-                        <th>IP Address</th>
-                        <th>MAC Address</th>
+                        <th>{t('interface')}</th>
+                        <th>{t('status')}</th>
+                        <th>{t('ip_address')}</th>
+                        <th>{t('mac_address')}</th>
                     </tr>
                 </thead>
                 <tbody>

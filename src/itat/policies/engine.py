@@ -3,6 +3,7 @@ Policy Engine for auditing system compliance.
 """
 
 from typing import Any, Dict, List
+from itat.core.serialization import to_dict
 from .base import Policy, PolicyResult
 from .rules import DiskSpacePolicy, MemoryUsagePolicy, UserSecurityPolicy
 
@@ -25,8 +26,9 @@ class PolicyEngine:
         """
         self.policies.append(policy)
 
-    def evaluate_all(self, inventory: Dict[str, Any]) -> List[PolicyResult]:
+    def evaluate_all(self, inventory: Any) -> List[PolicyResult]:
         """
-        Run all registered policies against the inventory.
+        Run all registered policies against the normalized inventory.
         """
-        return [policy.evaluate(inventory) for policy in self.policies]
+        normalized_data = to_dict(inventory)
+        return [policy.evaluate(normalized_data) for policy in self.policies]
