@@ -61,6 +61,22 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
         </tr>
         """
 
+    # User sessions section
+    users_data = inventory_data.get("users", {})
+    user_sessions = users_data.get("active_users", []) if isinstance(users_data, dict) else []
+    user_rows = ""
+    for u in user_sessions:
+        u_name = html.escape(str(u.get("username", "N/A")))
+        u_term = html.escape(str(u.get("terminal", "N/A")))
+        u_host = html.escape(str(u.get("host", "localhost")))
+        user_rows += f"""
+        <tr>
+            <td><code>{u_name}</code></td>
+            <td><code>{u_term}</code></td>
+            <td><code>{u_host}</code></td>
+        </tr>
+        """
+
     # Audit section
     audit_section = ""
     if audit_results:
@@ -282,6 +298,22 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
                 </thead>
                 <tbody>
                     {net_rows}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>👥 {t('active_users')}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{t('username')}</th>
+                        <th>{t('terminal')}</th>
+                        <th>{t('host')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {user_rows if user_rows else '<tr><td colspan="3">No active external user sessions</td></tr>'}
                 </tbody>
             </table>
         </div>

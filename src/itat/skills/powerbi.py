@@ -178,5 +178,6 @@ class PowerBISkill(BaseSkill):
             )
             return res.stdout.strip() == "active"
         except Exception:
-            # If not running under systemd or simulating
-            return True
+            # If status cannot be determined (e.g. systemctl missing, permission error),
+            # fail closed: report as NOT active rather than assuming healthy.
+            return False

@@ -93,6 +93,25 @@ def test_powerbi_skill_mocked(mock_socket, mock_subproc):
     assert health_no_cloud.status == SkillStatus.ERROR
 
 
+@patch("subprocess.run")
+@patch("socket.create_connection")
+def test_powerbi_gateway_status_fails_closed_on_unknown(mock_socket, mock_subproc):
+    """
+    If systemctl status can't be determined (e.g. missing binary, no systemd,
+    permission error), the gateway must be reported as NOT active rather than
+    assumed healthy. Failing "open" here would mask a real outage.
+    """
+    mock_socket.return_value.__enter__.return_value = MagicMock()
+    mock_subproc.side_effect = FileNotFoundError("systemctl: command not found")
+
+    pbi = PowerBISkill()
+    assert pbi._check_gateway_active() is False
+
+    health = pbi.check_health()
+    assert health.status != SkillStatus.OK
+    assert health.details["gateway_active"] is False
+
+
 def test_webservice_skill():
     web = WebServiceSkill(service_name="nginx")
     assert web.name == "nginx"
@@ -103,5 +122,6 @@ if __name__ == "__main__":
     test_base_skill_and_manager()
     test_mysql_skill_mocked()
     test_powerbi_skill_mocked()
+    test_powerbi_gateway_status_fails_closed_on_unknown()
     test_webservice_skill()
     print("All skill unit tests passed!")

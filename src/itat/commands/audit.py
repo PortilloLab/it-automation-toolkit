@@ -7,6 +7,7 @@ from itat.inventory.scanner import scan
 from itat.policies import PolicyEngine
 from itat.inventory.export import export_json, export_markdown
 from itat.reports import generate_html_report
+from itat.i18n import t
 
 
 class AuditCommand(Command):
@@ -19,7 +20,7 @@ class AuditCommand(Command):
 
     def run(self, args: list[str]) -> int:
         print("=" * 60)
-        print("IT Automation Toolkit - System Audit & Compliance")
+        print(f"IT Automation Toolkit - {t('audit')}")
         print("=" * 60)
 
         inventory = scan()
@@ -29,7 +30,7 @@ class AuditCommand(Command):
         failures = 0
         warnings = 0
 
-        print("\nPOLICY EVALUATION")
+        print(f"\n{t('security_audit').upper()}")
         print("-" * 60)
         for res in results:
             if res.passed:
@@ -42,10 +43,10 @@ class AuditCommand(Command):
                     warnings += 1
 
             print(f"{badge:<11} [{res.severity:<8}] {res.policy_name}")
-            print(f"            Details: {res.message}")
+            print(f"            {t('details')}: {res.message}")
 
         print("-" * 60)
-        print(f"Audit Summary: {len(results) - failures - warnings} Passed | {warnings} Warnings | {failures} Failures")
+        print(f"Audit Summary: {len(results) - failures - warnings} {t('passed')} | {warnings} {t('warnings')} | {failures} {t('failures')}")
 
         # Handle exports
         if "--html" in args:

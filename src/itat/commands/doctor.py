@@ -5,6 +5,7 @@ Doctor command for system health diagnostics.
 import socket
 import psutil
 from itat.core.command import Command
+from itat.i18n import t
 
 
 class DoctorCommand(Command):
@@ -17,7 +18,7 @@ class DoctorCommand(Command):
 
     def run(self, args: list[str]) -> int:
         print("=" * 60)
-        print("IT Automation Toolkit - System Doctor")
+        print(f"IT Automation Toolkit - {t('doctor')}")
         print("=" * 60)
 
         checks_passed = 0
@@ -100,7 +101,7 @@ class DoctorCommand(Command):
             print(f"{status:<8} Load Average     : {msg}")
 
         print("-" * 60)
-        print(f"Summary: {checks_passed} Passed | {checks_warn} Warnings | {checks_fail} Failures")
+        print(f"Summary: {checks_passed} {t('passed')} | {checks_warn} {t('warnings')} | {checks_fail} {t('failures')}")
         print("-" * 60)
 
         return 0 if checks_fail == 0 else 1

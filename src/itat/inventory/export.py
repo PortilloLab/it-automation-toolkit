@@ -2,31 +2,19 @@
 Inventory Exporter.
 
 Export inventory data to JSON and Markdown formats.
+Uses centralized core.serialization.to_dict for data normalization.
 """
 
 import json
-from dataclasses import is_dataclass, asdict
 from typing import Any
-
-
-def _to_dict(obj: Any) -> Any:
-    """
-    Helper function to convert dataclasses and nested objects to dictionaries.
-    """
-    if is_dataclass(obj):
-        return asdict(obj)
-    if isinstance(obj, dict):
-        return {k: _to_dict(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_to_dict(item) for item in obj]
-    return obj
+from itat.core.serialization import to_dict
 
 
 def export_json(inventory_data: dict, filepath: str) -> None:
     """
     Export inventory data to a JSON file.
     """
-    clean_data = _to_dict(inventory_data)
+    clean_data = to_dict(inventory_data)
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(clean_data, f, indent=2, ensure_ascii=False)
 
@@ -35,12 +23,13 @@ def export_markdown(inventory_data: dict, filepath: str) -> None:
     """
     Export inventory data to a Markdown report file.
     """
-    clean_data = _to_dict(inventory_data)
+    clean_data = to_dict(inventory_data)
     sys = clean_data.get("system", {})
     cpu = clean_data.get("cpu", {})
     mem = clean_data.get("memory", {})
     disk = clean_data.get("disk", {})
     net = clean_data.get("network", {})
+    users_info = clean_data.get("users", {})
 
     lines = []
     lines.append("# IT Automation Toolkit - System Inventory Report\n")
@@ -52,6 +41,16 @@ def export_markdown(inventory_data: dict, filepath: str) -> None:
     lines.append(f"- **Architecture:** {sys.get('architecture', 'N/A')}")
     lines.append(f"- **Python Version:** {sys.get('python_version', 'N/A')}")
     lines.append(f"- **Active User:** {sys.get('current_user', 'N/A')}\n")
+
+    # Active user sessions
+    if users_info.get("active_users"):
+        lines.append("## Active User Sessions")
+        lines.append(f"Total Active Sessions: {users_info.get('total_active_sessions', 0)}")
+        lines.append("| Username | Terminal | Host |")
+        lines.append("| --- | --- | --- |")
+        for u in users_info.get("active_users", []):
+            lines.append(f"| `{u.get('username')}` | `{u.get('terminal')}` | `{u.get('host')}` |")
+        lines.append("")
 
     lines.append("## CPU Details")
     lines.append(f"- **Processor:** {cpu.get('processor', 'N/A')}")
