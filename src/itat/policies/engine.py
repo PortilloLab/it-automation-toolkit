@@ -5,7 +5,7 @@ Policy Engine for auditing system compliance.
 from typing import Any, Dict, List
 from itat.core.serialization import to_dict
 from .base import Policy, PolicyResult
-from .rules import DiskSpacePolicy, MemoryUsagePolicy, UserSecurityPolicy
+from .rules import DiskSpacePolicy, MemoryUsagePolicy, UserSecurityPolicy, SwapUsagePolicy, NetworkSecurityPolicy
 
 
 class PolicyEngine:
@@ -17,7 +17,9 @@ class PolicyEngine:
         self.policies = policies or [
             DiskSpacePolicy(),
             MemoryUsagePolicy(),
+            SwapUsagePolicy(),
             UserSecurityPolicy(),
+            NetworkSecurityPolicy(),
         ]
 
     def add_policy(self, policy: Policy) -> None:

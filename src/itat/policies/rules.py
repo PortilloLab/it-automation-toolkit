@@ -104,3 +104,72 @@ class UserSecurityPolicy(Policy):
             severity=self.severity,
             message=f"System running under standard user '{user}'",
         )
+
+
+class SwapUsagePolicy(Policy):
+    """
+    Ensures Swap usage does not indicate memory exhaustion.
+    """
+
+    name = "Swap Memory Health"
+    description = "Checks if Swap usage exceeds critical threshold."
+    severity = "MEDIUM"
+
+    def __init__(self, max_usage_percent: float = 80.0):
+        self.max_usage_percent = max_usage_percent
+
+    def evaluate(self, inventory: Dict[str, Any]) -> PolicyResult:
+        mem_data = inventory.get("memory", {})
+        used_pct = mem_data.get("swap_percent") if isinstance(mem_data, dict) else getattr(mem_data, "swap_percent", None)
+
+        if used_pct is not None and used_pct > self.max_usage_percent:
+            return PolicyResult(
+                policy_name=self.name,
+                passed=False,
+                severity=self.severity,
+                message=f"Swap usage is high: {used_pct}% (Limit: {self.max_usage_percent}%)",
+            )
+
+        return PolicyResult(
+            policy_name=self.name,
+            passed=True,
+            severity=self.severity,
+            message=f"Swap usage is healthy: {used_pct if used_pct is not None else 0.0}%",
+        )
+
+
+class NetworkSecurityPolicy(Policy):
+    """
+    Audits active network interfaces and status.
+    """
+
+    name = "Network Interface Status"
+    description = "Checks active network interfaces and connectivity."
+    severity = "LOW"
+
+    def evaluate(self, inventory: Dict[str, Any]) -> PolicyResult:
+        net_data = inventory.get("network", {})
+        interfaces = net_data.get("interfaces", [])
+
+        up_interfaces = [
+            str(iface.get("interface") or iface.get("name") or "")
+            for iface in interfaces
+            if (iface.get("is_up") if isinstance(iface, dict) else getattr(iface, "is_up", False))
+            and (iface.get("interface") or iface.get("name"))
+        ]
+
+        if not up_interfaces:
+            return PolicyResult(
+                policy_name=self.name,
+                passed=False,
+                severity="HIGH",
+                message="No active network interfaces found.",
+            )
+
+        return PolicyResult(
+            policy_name=self.name,
+            passed=True,
+            severity=self.severity,
+            message=f"Active network interfaces: {', '.join(up_interfaces)}",
+        )
+
