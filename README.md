@@ -1,57 +1,60 @@
 # 🛠️ IT Automation Toolkit (ITAT)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/badge/python-3.11%2B-brightgreen.svg)](https://python.org)
-[![Status](https://img.shields.io/badge/status-active--development-orange.svg)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Versión de Python](https://img.shields.io/badge/python-3.11%2B-brightgreen.svg)](https://python.org)
+[![Estado](https://img.shields.io/badge/estado-desarrollo--activo-orange.svg)]()
+[![PRs Bienvenidos](https://img.shields.io/badge/PRs-bienvenidos-brightgreen.svg)](CONTRIBUTING.md)
 
-**IT Automation Toolkit (ITAT)** is a modern, modular, enterprise-ready Python framework designed for IT System Administrators, DevOps Engineers, and Managed Service Providers (MSPs). It automates system auditing, hardware/network inventory scanning, security compliance checks, and specialized client software support ("Skills").
+**IT Automation Toolkit (ITAT)** es un framework modular, moderno y de nivel empresarial (*Enterprise-ready*) escrito en Python. Diseñado para Administradores de Sistemas TI, Ingenieros DevOps y Proveedores de Servicios Gestionados (MSPs), ITAT automatiza la auditoría de sistemas, el inventario de hardware y red, la verificación de políticas de seguridad, el envío de alertas por Webhook y el soporte automatizado de aplicaciones críticas mediante *Skills*.
 
 ---
 
-## ✨ Key Features
+## ✨ Características Principales
 
 - 🎛️ **Plataforma Interactiva de Menús (`itat` o `itat menu`)**
-  - Consola interactiva visual con menús numerados para navegar por todas las herramientas sin memorizar comandos.
-- 🖥️ **Full Hardware & Network Inventory (`itat inventory`)**
-  - Collects CPU, RAM & Swap memory, physical disk partitions, active network interfaces (IP/MAC), active user sessions, and top resource-consuming processes.
-  - Generates executive reports in **Dark-Mode Glassmorphism HTML**, **Markdown**, and **JSON**.
-- 🩺 **System Doctor & Health Check (`itat doctor`)**
-  - Diagnoses CPU load, memory pressure, root disk capacity, load averages, and outbound internet/DNS connectivity.
-- 🛡️ **Security Policy & Compliance Audit (`itat audit`)**
-  - Evaluates system state against configurable security policies (`DiskSpacePolicy`, `MemoryUsagePolicy`, `UserSecurityPolicy`).
-- 🎫 **Service Desk & Ticket Management (`itat ticket`)**
-  - Local SQLite database to record client incidents, resolution notes, and export monthly executive billing reports.
-- 🔌 **Remote Connectors & Automation SDK (`src/itat/connectors/`)**
-  - Modular Python classes (`HTTPConnector` & `SSHConnector`) to transmit telemetry, trigger REST API webhooks, or perform secure SSH administration.
-- 🧩 **Specialized Client Support Skills (`itat skill`)**
-  - Modular plugin architecture (`BaseSkill`) to diagnose, analyze logs, and auto-repair specific software stacks:
-    - **Nginx / Web Services (`WebServiceSkill`)**
-    - **Docker Daemon Status** (via `WebServiceSkill`, systemd-based health/restart — no per-container diagnostics yet)
-    - **MySQL / MariaDB (`MySQLSkill`)**
-    - **Power BI On-Premises Data Gateway & Cloud Connectivity (`PowerBISkill`)**
+  - Consola interactiva visual con menús numerados y soporte i18n (Español/Inglés) para navegar por todas las herramientas sin memorizar comandos.
+- 🖥️ **Inventario Completo de Hardware y Red (`itat inventory`)**
+  - Recolecta métricas de CPU, memoria RAM y Swap, particiones de disco físico, interfaces de red activas (IP/MAC), sesiones de usuario y procesos con mayor consumo de recursos.
+  - Genera reportes ejecutivos en formatos **HTML (Dark-Mode Glassmorphism)**, **Markdown** y **JSON**, organizados automáticamente en la carpeta `/exports/`.
+- 🩺 **Diagnóstico de Salud del Sistema (`itat doctor`)**
+  - Evalúa la carga del procesador, presión de memoria, capacidad del disco raíz, promedio de carga y conectividad externa/DNS.
+- 🛡️ **Auditoría de Seguridad y Cumplimiento (`itat audit`)**
+  - Verifica el estado del sistema contra políticas de seguridad configurables (`DiskSpacePolicy`, `MemoryUsagePolicy`, `UserSecurityPolicy`).
+- 🚨 **Notificaciones y Alertas vía Webhook (`--webhook <URL>`)**
+  - Envío automático de alertas formateadas para **Slack**, **Discord**, **Telegram** o endpoints **REST/JSON** ante eventos de auditoría o fallos en el sistema.
+- 🎫 **Gestión de Tickets e Incidentes ITSM (`itat ticket`)**
+  - Base de datos SQLite integrada para registrar incidentes de clientes, notas de resolución, seguimiento de estados y exportación de reportes ejecutivos de facturación.
+- ⚙️ **Abstracción de Servicios Multiplataforma (`ServiceManager`)**
+  - Gestión agnóstica del sistema operativo para consultar y reiniciar servicios en **Linux** (`systemctl` con elevación segura `sudo`), **Windows** (`sc.exe` / `net`) y **macOS**.
+- 🧩 **Skills Especializados de Soporte (`itat skill`)**
+  - Arquitectura modular de plugins (`BaseSkill`) para diagnosticar, analizar logs y autoreparar (*auto-fix*) entornos de software específicos:
+    - 🌐 **Nginx / Servidores Web (`WebServiceSkill`)**
+    - 🐋 **Entorno Docker (`DockerSkill`)**: Inspección de demonio, contenedores activos y caídos (`exited`), análisis de logs y reinicio automático.
+    - 🐬 **MySQL / MariaDB (`MySQLSkill`)**: Diagnóstico de socket TCP 3306, verificación del servicio y remediación.
+    - 🐘 **PostgreSQL (`PostgreSQLSkill`)**: Inspección de puerto 5432, salud del servicio y análisis de logs.
+    - 📊 **Power BI On-Premises Gateway (`PowerBISkill`)**: Verificación de conectividad HTTPS a la nube (`api.powerbi.com`), diagnóstico del servicio de Gateway y análisis de logs.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Inicio Rápido
 
-### 1. Installation
+### 1. Instalación
 
-Clone the repository and install it in editable mode:
+Clona el repositorio e instala el Toolkit en modo editable:
 
 ```bash
 git clone https://github.com/PortilloLab/it-automation-toolkit.git
 cd it-automation-toolkit
 
-# Create virtual environment
+# Crear entorno virtual
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies and ITAT CLI (development mode)
+# Instalar dependencias y el CLI de ITAT (modo desarrollo)
 pip install -e .[dev]
 ```
 
-### 2. Verify Installation
+### 2. Verificar la Instalación
 
 ```bash
 itat --help
@@ -60,78 +63,106 @@ itat version
 
 ---
 
-## 💻 CLI Usage
+## 💻 Uso de la Línea de Comandos (CLI)
 
-### System Inventory & Reporting
+### 🎛️ Menú Interactivo Visual
 
 ```bash
-# View complete inventory in terminal
-itat inventory
-
-# Export executive reports to HTML, Markdown, and JSON
-itat inventory --html report.html --markdown report.md --json report.json
+itat menu
 ```
 
-### Health Diagnostics
+### 🖥️ Inventario del Sistema y Exportación de Reportes
 
 ```bash
-# Run system health checks
+# Ver inventario completo en la terminal
+itat inventory
+
+# Exportar reportes ejecutivos a la carpeta ./exports/
+itat inventory --html reporte.html --markdown reporte.md --json reporte.json
+```
+
+### 🩺 Diagnóstico de Salud (System Doctor)
+
+```bash
+# Diagnosticar estado del hardware y conectividad
 itat doctor
 ```
 
-### Security & Compliance Audit
+### 🛡️ Auditoría de Seguridad y Alertas por Webhook
 
 ```bash
-# Execute policy checks and export executive audit report
-itat audit --html audit_report.html
+# Ejecutar auditoría y generar reporte HTML
+itat audit --html auditoria.html
+
+# Ejecutar auditoría y enviar alerta a Slack o Discord si se detectan fallos
+itat audit --webhook https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-### Specialized Client Support Skills
+### 🧩 Skills Especializados y Remedración Automática
 
 ```bash
-# List all registered skills
+# Listar todos los skills registrados
 itat skill list
 
-# Run health diagnostics across client skills (Nginx, MySQL, Power BI, Docker)
+# Ejecutar diagnóstico de salud en todos los skills (Nginx, Docker, MySQL, PostgreSQL, Power BI)
 itat skill health
 
-# Analyze application log files for error patterns
-itat skill logs --name mysql
+# Analizar logs buscando patrones de error
+itat skill logs --name postgresql
 
-# Execute automated remediation / service restart (includes safety confirmation prompt)
+# Ejecutar autoreparación / reinicio de servicio (registra automáticamente un ticket en SQLite)
 itat skill fix --name mysql --yes
+```
+
+### 🎫 Gestión de Tickets de Soporte
+
+```bash
+# Listar tickets abiertos
+itat ticket list --status OPEN
+
+# Crear un nuevo ticket de soporte
+itat ticket create --title "Fallo de conexión en BD" --client "Cliente Alpha" --priority HIGH
+
+# Resolver ticket indicando notas de solución
+itat ticket resolve 1 --notes "Servicio restablecido mediante auto-fix de ITAT."
+
+# Exportar reporte de tickets a HTML
+itat ticket export --html reporte_tickets.html
 ```
 
 ---
 
-## 🧩 Extending ITAT: Writing Custom Skills
+## 🧩 Extensión de ITAT: Creación de Skills Personalizados
 
-ITAT is designed to be easily extended with custom support skills for your clients' specific software stacks.
-
-Simply inherit from `BaseSkill`:
+ITAT permite extender fácilmente la capacidad de soporte para cualquier aplicación o servicio personalizado heredando de `BaseSkill`:
 
 ```python
 from itat.skills import BaseSkill, SkillResult, SkillStatus
+from itat.utils.services import ServiceManager
 
 class RedisSkill(BaseSkill):
     name = "redis"
-    description = "Support skill for Redis In-Memory Store"
+    description = "Skill de soporte para Redis In-Memory Store"
     target_service = "redis-server"
 
     def check_health(self) -> SkillResult:
-        # Custom health logic here
-        return SkillResult(status=SkillStatus.OK, message="Redis server is running smoothly.")
+        is_active = ServiceManager.is_service_active(self.target_service)
+        if is_active:
+            return SkillResult(status=SkillStatus.OK, message="Servidor Redis en ejecución normal.")
+        return SkillResult(status=SkillStatus.WARNING, message="Servicio Redis detenido.")
 
     def analyze_logs(self, log_path=None, lines=100) -> SkillResult:
-        # Custom log analysis logic
-        return SkillResult(status=SkillStatus.OK, message="No errors in Redis logs.")
+        # Lógica personalizada de análisis de logs
+        return SkillResult(status=SkillStatus.OK, message="Sin errores en los logs de Redis.")
 
     def auto_fix(self) -> SkillResult:
-        # Custom remediation logic
-        return SkillResult(status=SkillStatus.OK, message="Restarted Redis service.", actions_taken=["systemctl restart redis"])
+        success, msg = ServiceManager.restart_service(self.target_service)
+        if success:
+            return SkillResult(status=SkillStatus.OK, message=msg, actions_taken=["Servicio Redis reiniciado."])
+        return SkillResult(status=SkillStatus.ERROR, message=msg)
 ```
 
-Register your skill in `SkillManager`:
+Registra tu nuevo skill en `SkillManager`:
 
 ```python
 from itat.skills import SkillManager
@@ -142,20 +173,20 @@ manager.register(RedisSkill())
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contribuciones
 
-Contributions from the open-source community are welcome! Whether it's adding new skills, refining policy engines, or expanding OS compatibility:
+¡Las contribuciones de la comunidad son bienvenidas! Ya sea agregando nuevos skills, creando nuevas políticas de seguridad o mejorando la compatibilidad de plataformas:
 
-1. Review [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Fork the repository
-3. Create a feature branch (`git checkout -b feature/awesome-skill`)
-4. Run unit tests (`pytest tests/`)
-5. Submit a Pull Request!
+1. Revisa [CONTRIBUTING.md](CONTRIBUTING.md)
+2. Realiza un Fork del repositorio
+3. Crea tu rama de función (`git checkout -b feature/nuevo-skill`)
+4. Ejecuta las pruebas unitarias (`pytest tests/`)
+5. ¡Envía un Pull Request!
 
 ---
 
-## 📜 License
+## 📜 Licencia
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distribuido bajo la **Licencia MIT**. Consulta `LICENSE` para más información.
 
-Developed with ❤️ by **José Daniel Portillo** ([PortilloLab](https://github.com/PortilloLab)).
+Desarrollado con ❤️ por **José Daniel Portillo** ([PortilloLab](https://github.com/PortilloLab)).
