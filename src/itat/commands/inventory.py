@@ -33,16 +33,16 @@ class InventoryCommand(Command):
             idx = args.index("--json")
             if idx + 1 < len(args):
                 out_path = args[idx + 1]
-                export_json(inventory, out_path)
-                print(f"[+] Inventory exported to JSON: {out_path}")
+                saved_path = export_json(inventory, out_path)
+                print(f"[+] Inventory exported to JSON: {saved_path}")
 
         if "--markdown" in args or "-m" in args:
             flag = "--markdown" if "--markdown" in args else "-m"
             idx = args.index(flag)
             if idx + 1 < len(args):
                 out_path = args[idx + 1]
-                export_markdown(inventory, out_path)
-                print(f"[+] Inventory exported to Markdown: {out_path}")
+                saved_path = export_markdown(inventory, out_path)
+                print(f"[+] Inventory exported to Markdown: {saved_path}")
 
         print("=" * 60)
         print(f"IT Automation Toolkit - {t('inventory')}")

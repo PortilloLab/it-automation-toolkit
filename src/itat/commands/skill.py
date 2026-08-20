@@ -1,14 +1,13 @@
-"""
-Skill CLI Command for managing and executing specialized client support skills.
-"""
-
 from typing import List, Optional
 from itat.core.command import Command
+from itat.tickets import TicketDatabase
 from itat.skills import (
     SkillManager,
     WebServiceSkill,
     MySQLSkill,
     PowerBISkill,
+    PostgreSQLSkill,
+    DockerSkill,
     SkillStatus,
 )
 
@@ -24,10 +23,12 @@ class SkillCommand(Command):
     def __init__(self):
         super().__init__()
         self.manager = SkillManager()
+        self.ticket_db = TicketDatabase()
         # Register built-in skills
         self.manager.register(WebServiceSkill(service_name="nginx"))
-        self.manager.register(WebServiceSkill(service_name="docker"))
+        self.manager.register(DockerSkill())
         self.manager.register(MySQLSkill())
+        self.manager.register(PostgreSQLSkill())
         self.manager.register(PowerBISkill())
 
     def run(self, args: Optional[List[str]] = None) -> int:
@@ -122,5 +123,23 @@ class SkillCommand(Command):
         if res.actions_taken:
             for act in res.actions_taken:
                 print(f"       ✔ Action taken: {act}")
+
+        # Integrate with TicketDatabase: Auto-log incident/remediation ticket
+        try:
+            t_id = self.ticket_db.create_ticket(
+                title=f"Auto-Fix remediation for skill '{skill_name}'",
+                description=f"Message: {res.message}\nActions: {', '.join(res.actions_taken or ['None'])}",
+                client_name="Local System",
+                priority="HIGH" if res.status != SkillStatus.OK else "MEDIUM",
+                skill_name=skill_name,
+            )
+            if res.status == SkillStatus.OK:
+                self.ticket_db.resolve_ticket(t_id, notes=f"Resolved via ITAT auto_fix for '{skill_name}'")
+                print(f"🎫 Auto-logged and resolved Ticket #{t_id} in ITAT Helpdesk DB.")
+            else:
+                print(f"🎫 Auto-logged open incident Ticket #{t_id} in ITAT Helpdesk DB.")
+        except Exception as e:
+            print(f"[!] Warning: Unable to auto-log ticket: {e}")
+
         print("=" * 60)
         return 0

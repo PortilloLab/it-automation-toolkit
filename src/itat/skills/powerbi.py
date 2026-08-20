@@ -1,14 +1,9 @@
-"""
-PowerBI On-Premises Gateway Support Skill for ITAT framework.
-
-Provides specialized diagnostics, log analysis, and automated remediation for Power BI Data Gateways.
-"""
-
 import os
 import socket
 import subprocess
 from typing import Optional
 from .base import BaseSkill, SkillResult, SkillStatus
+from itat.utils.services import ServiceManager
 
 
 class PowerBISkill(BaseSkill):
@@ -61,7 +56,7 @@ class PowerBISkill(BaseSkill):
                 recommendations=recommendations,
             )
         else:
-            recommendations.append(f"Run 'itat skill fix powerbi' or 'systemctl restart {self.service_name}'.")
+            recommendations.append(f"Run 'itat skill fix powerbi' or restart service '{self.service_name}'.")
             return SkillResult(
                 status=SkillStatus.WARNING,
                 message=f"Cloud is reachable, but Power BI Gateway service '{self.service_name}' is stopped or inactive.",
@@ -127,7 +122,7 @@ class PowerBISkill(BaseSkill):
         )
 
     def auto_fix(self) -> SkillResult:
-        """Attempt automated remediation for Power BI Gateway."""
+        """Attempt automated remediation for Power BI Gateway using ServiceManager."""
         health = self.check_health()
         if health.is_healthy():
             return SkillResult(
@@ -135,30 +130,17 @@ class PowerBISkill(BaseSkill):
                 message="Power BI Gateway is running healthily. No action needed.",
             )
 
-        actions = []
-        try:
-            res = subprocess.run(
-                ["sudo", "systemctl", "restart", self.service_name],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if res.returncode == 0:
-                actions.append(f"Restarted Power BI Gateway service '{self.service_name}'.")
-                return SkillResult(
-                    status=SkillStatus.OK,
-                    message=f"Successfully restarted Power BI Gateway service '{self.service_name}'.",
-                    actions_taken=actions,
-                )
-            else:
-                return SkillResult(
-                    status=SkillStatus.ERROR,
-                    message=f"Failed to restart Gateway service: {res.stderr.strip()}",
-                )
-        except Exception as e:
+        success, msg = ServiceManager.restart_service(self.service_name, timeout=15)
+        if success:
             return SkillResult(
-                status=SkillStatus.CRITICAL,
-                message=f"Power BI auto-fix exception: {str(e)}",
+                status=SkillStatus.OK,
+                message=f"Successfully restarted Power BI Gateway service '{self.service_name}'.",
+                actions_taken=[f"Restarted {self.service_name} via ServiceManager"],
+            )
+        else:
+            return SkillResult(
+                status=SkillStatus.ERROR,
+                message=msg,
             )
 
     def _check_cloud_connectivity(self) -> bool:
@@ -169,15 +151,4 @@ class PowerBISkill(BaseSkill):
             return False
 
     def _check_gateway_active(self) -> bool:
-        try:
-            res = subprocess.run(
-                ["systemctl", "is-active", self.service_name],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return res.stdout.strip() == "active"
-        except Exception:
-            # If status cannot be determined (e.g. systemctl missing, permission error),
-            # fail closed: report as NOT active rather than assuming healthy.
-            return False
+        return ServiceManager.is_service_active(self.service_name)

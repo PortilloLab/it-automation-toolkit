@@ -7,6 +7,8 @@ from .manager import SkillManager
 from .builtin import WebServiceSkill
 from .mysql import MySQLSkill
 from .powerbi import PowerBISkill
+from .postgresql import PostgreSQLSkill
+from .docker import DockerSkill
 
 __all__ = [
     "BaseSkill",
@@ -16,4 +18,6 @@ __all__ = [
     "WebServiceSkill",
     "MySQLSkill",
     "PowerBISkill",
+    "PostgreSQLSkill",
+    "DockerSkill",
 ]

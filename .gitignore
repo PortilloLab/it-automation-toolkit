@@ -45,6 +45,7 @@ htmlcov/
 !README.md
 !CONTRIBUTING.md
 !LICENSE
+exports/
 
 # IDE files
 .vscode/

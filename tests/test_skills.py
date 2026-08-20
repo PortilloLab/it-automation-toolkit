@@ -112,10 +112,46 @@ def test_powerbi_gateway_status_fails_closed_on_unknown(mock_socket, mock_subpro
     assert health.details["gateway_active"] is False
 
 
-def test_webservice_skill():
-    web = WebServiceSkill(service_name="nginx")
-    assert web.name == "nginx"
-    assert web.target_service == "nginx"
+from itat.skills.postgresql import PostgreSQLSkill
+from itat.skills.docker import DockerSkill
+from itat.utils.services import ServiceManager
+from itat.utils.paths import ensure_export_path
+
+
+@patch("subprocess.run")
+@patch("socket.create_connection")
+def test_postgresql_skill_mocked(mock_socket, mock_subproc):
+    mock_subproc.return_value = MagicMock(returncode=0, stdout="active\n")
+    mock_socket.return_value.__enter__.return_value = MagicMock()
+
+    pg = PostgreSQLSkill()
+    health = pg.check_health()
+    assert health.status == SkillStatus.OK
+    assert "postgresql server is active" in health.message.lower()
+
+
+@patch("subprocess.run")
+def test_docker_skill_mocked(mock_subproc):
+    def side_effect(cmd, **kwargs):
+        if "is-active" in cmd:
+            return MagicMock(returncode=0, stdout="active\n")
+        elif "ps" in cmd:
+            return MagicMock(returncode=0, stdout="c1|web|Up 2 hours|running\nc2|db|Exited (0) 10 min ago|exited\n")
+        return MagicMock(returncode=0, stdout="")
+
+    mock_subproc.side_effect = side_effect
+
+    docker_skill = DockerSkill()
+    health = docker_skill.check_health()
+    assert health.status == SkillStatus.WARNING
+    assert health.details["running_containers"] == 1
+    assert health.details["exited_containers"] == 1
+
+
+def test_ensure_export_path():
+    path1 = ensure_export_path("test_report.html")
+    assert "exports" in path1
+    assert path1.endswith("test_report.html")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 """
-MySQL Support Skill for ITAT framework.
+PostgreSQL Support Skill for ITAT framework.
 
-Provides specialized diagnostics, log analysis, and automated remediation for MySQL Database Server.
+Provides specialized diagnostics, log analysis, and automated remediation for PostgreSQL Database Server.
 """
 
 import os
@@ -12,64 +12,61 @@ from .base import BaseSkill, SkillResult, SkillStatus
 from itat.utils.services import ServiceManager
 
 
-class MySQLSkill(BaseSkill):
+class PostgreSQLSkill(BaseSkill):
     """
-    Skill for inspecting, diagnosing, and maintaining MySQL / MariaDB Server.
+    Skill for inspecting, diagnosing, and maintaining PostgreSQL Database Server.
     """
 
-    name = "mysql"
-    description = "Specialized support skill for MySQL / MariaDB Database Server"
+    name = "postgresql"
+    description = "Specialized support skill for PostgreSQL Database Server"
     version = "1.0.0"
-    target_service = "mysql"
+    target_service = "postgresql"
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 3306, service_name: str = "mysql"):
+    def __init__(self, host: str = "127.0.0.1", port: int = 5432, service_name: str = "postgresql"):
         self.host = host
         self.port = port
         self.service_name = service_name
 
     def check_health(self) -> SkillResult:
-        """Check MySQL system service and port 3306 accessibility."""
+        """Check PostgreSQL system service and TCP port 5432 accessibility."""
         details = {"host": self.host, "port": self.port, "service": self.service_name}
         recommendations = []
 
-        # 1. Check TCP socket connectivity on MySQL port
         port_open = self._check_port_open()
         details["port_listening"] = port_open
 
-        # 2. Check service status via systemctl
-        service_active = self._check_service_active()
+        service_active = ServiceManager.is_service_active(self.service_name)
         details["service_active"] = service_active
 
         if port_open and service_active:
             return SkillResult(
                 status=SkillStatus.OK,
-                message=f"MySQL Server is active and listening on {self.host}:{self.port}.",
+                message=f"PostgreSQL Server is active and listening on {self.host}:{self.port}.",
                 details=details,
             )
         elif service_active and not port_open:
-            recommendations.append("Verify MySQL bind-address or check if port 3306 is blocked by firewall.")
+            recommendations.append(f"Verify PostgreSQL listen_addresses in postgresql.conf or firewall rules for port {self.port}.")
             return SkillResult(
                 status=SkillStatus.WARNING,
-                message=f"MySQL service is active, but port {self.port} is not accepting connections.",
+                message=f"PostgreSQL service is active, but port {self.port} is not accepting connections.",
                 details=details,
                 recommendations=recommendations,
             )
         else:
-            recommendations.append(f"Run 'itat skill fix mysql' or 'sudo systemctl start {self.service_name}'.")
+            recommendations.append(f"Run 'itat skill fix postgresql' or start service '{self.service_name}'.")
             return SkillResult(
                 status=SkillStatus.CRITICAL,
-                message=f"MySQL Server service '{self.service_name}' is stopped or not running.",
+                message=f"PostgreSQL Server service '{self.service_name}' is stopped or not running.",
                 details=details,
                 recommendations=recommendations,
             )
 
     def analyze_logs(self, log_path: Optional[str] = None, lines: int = 100) -> SkillResult:
-        """Analyze MySQL error log files or journalctl for critical errors."""
+        """Analyze PostgreSQL error logs or journalctl for critical entries."""
         possible_paths = [
             log_path,
-            "/var/log/mysql/error.log",
-            "/var/log/mysqld.log",
-            "/var/log/mariadb/mariadb.log",
+            "/var/log/postgresql/postgresql-main.log",
+            "/var/log/postgresql/postgresql.log",
         ]
 
         target_log = None
@@ -85,15 +82,14 @@ class MySQLSkill(BaseSkill):
                 with open(target_log, "r", encoding="utf-8", errors="ignore") as f:
                     recent = f.readlines()[-lines:]
                     for line in recent:
-                        if any(kw in line.lower() for kw in ["[error]", "[critical]", "access denied", "corrupted"]):
+                        if any(kw in line.lower() for kw in ["fatal", "panic", "error", "connection refused", "corrupted"]):
                             error_lines.append(line.strip())
             except Exception as e:
                 return SkillResult(
                     status=SkillStatus.ERROR,
-                    message=f"Error reading log file {target_log}: {str(e)}",
+                    message=f"Error reading PostgreSQL log file {target_log}: {str(e)}",
                 )
         else:
-            # Fallback to journalctl
             try:
                 res = subprocess.run(
                     ["journalctl", "-u", self.service_name, "-n", str(lines), "--no-pager"],
@@ -103,7 +99,7 @@ class MySQLSkill(BaseSkill):
                 )
                 if res.returncode == 0:
                     for line in res.stdout.splitlines():
-                        if any(kw in line.lower() for kw in ["error", "fail", "denied", "crash"]):
+                        if any(kw in line.lower() for kw in ["fatal", "error", "panic", "failed"]):
                             error_lines.append(line)
             except Exception:
                 pass
@@ -111,24 +107,24 @@ class MySQLSkill(BaseSkill):
         if error_lines:
             return SkillResult(
                 status=SkillStatus.WARNING,
-                message=f"Found {len(error_lines)} potential issue entries in MySQL log.",
+                message=f"Found {len(error_lines)} warning/error log entries in PostgreSQL.",
                 details={"log_file": target_log or "journalctl", "error_count": len(error_lines), "sample_errors": error_lines[:5]},
-                recommendations=["Inspect table integrity with 'mysqlcheck' or review user credentials."],
+                recommendations=["Inspect PostgreSQL connection pool limits, disk quota, or client authentication."],
             )
 
         return SkillResult(
             status=SkillStatus.OK,
-            message="No critical error entries found in recent MySQL logs.",
+            message="No critical error entries found in recent PostgreSQL logs.",
             details={"log_file": target_log or "journalctl"},
         )
 
     def auto_fix(self) -> SkillResult:
-        """Attempt automated remediation (restart MySQL service via ServiceManager)."""
+        """Attempt automated remediation (restart PostgreSQL service)."""
         health = self.check_health()
         if health.is_healthy():
             return SkillResult(
                 status=SkillStatus.OK,
-                message="MySQL is already running normally. No remediation needed.",
+                message="PostgreSQL is already running healthily. No remediation needed.",
             )
 
         success, msg = ServiceManager.restart_service(self.service_name, timeout=15)
@@ -138,13 +134,13 @@ class MySQLSkill(BaseSkill):
             if post_check.is_healthy():
                 return SkillResult(
                     status=SkillStatus.OK,
-                    message=f"Successfully restored MySQL Server '{self.service_name}'.",
+                    message=f"Successfully restored PostgreSQL Server '{self.service_name}'.",
                     actions_taken=actions,
                 )
             else:
                 return SkillResult(
                     status=SkillStatus.ERROR,
-                    message="Restart command succeeded, but MySQL health check is still failing.",
+                    message="Restart command executed, but PostgreSQL health check is still failing.",
                     actions_taken=actions,
                 )
         else:
@@ -159,6 +155,3 @@ class MySQLSkill(BaseSkill):
                 return True
         except (socket.timeout, ConnectionRefusedError, OSError):
             return False
-
-    def _check_service_active(self) -> bool:
-        return ServiceManager.is_service_active(self.service_name)

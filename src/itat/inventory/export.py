@@ -8,21 +8,25 @@ Uses centralized core.serialization.to_dict for data normalization.
 import json
 from typing import Any
 from itat.core.serialization import to_dict
+from itat.utils.paths import ensure_export_path
 
 
-def export_json(inventory_data: dict, filepath: str) -> None:
+def export_json(inventory_data: dict, filepath: str) -> str:
     """
-    Export inventory data to a JSON file.
+    Export inventory data to a JSON file. Returns target path.
     """
+    filepath = ensure_export_path(filepath, "inventory.json")
     clean_data = to_dict(inventory_data)
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(clean_data, f, indent=2, ensure_ascii=False)
+    return filepath
 
 
-def export_markdown(inventory_data: dict, filepath: str) -> None:
+def export_markdown(inventory_data: dict, filepath: str) -> str:
     """
-    Export inventory data to a Markdown report file.
+    Export inventory data to a Markdown report file. Returns target path.
     """
+    filepath = ensure_export_path(filepath, "inventory.md")
     clean_data = to_dict(inventory_data)
     sys = clean_data.get("system", {})
     cpu = clean_data.get("cpu", {})
@@ -88,3 +92,4 @@ def export_markdown(inventory_data: dict, filepath: str) -> None:
 
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
+    return filepath

@@ -9,6 +9,7 @@ import html
 from typing import Any, Dict, List
 from itat.core.serialization import to_dict
 from itat.i18n import t
+from itat.utils.paths import ensure_export_path
 
 
 def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any] = None, output_path: str = "report.html") -> str:
@@ -16,6 +17,7 @@ def generate_html_report(inventory_data: Dict[str, Any], audit_results: List[Any
     Generate an HTML report with dark mode glassmorphism UI.
     Uses html.escape to prevent XSS injection.
     """
+    output_path = ensure_export_path(output_path, "report.html")
     data = to_dict(inventory_data)
     sys = data.get("system", {})
     cpu = data.get("cpu", {})

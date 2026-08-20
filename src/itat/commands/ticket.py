@@ -7,6 +7,7 @@ from typing import List, Optional
 from itat.core.command import Command
 from itat.tickets import TicketDatabase
 from itat.i18n import t
+from itat.utils.paths import ensure_export_path
 
 
 class TicketCommand(Command):
@@ -132,6 +133,7 @@ class TicketCommand(Command):
             return 1
 
     def _handle_export_html(self, html_file: str) -> int:
+        html_file = ensure_export_path(html_file, "reporte_tickets.html")
         tickets = self.db.list_tickets()
         rows_html = ""
         for tk in tickets:

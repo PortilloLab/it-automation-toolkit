@@ -6,6 +6,7 @@ import os
 import subprocess
 from typing import Optional
 from .base import BaseSkill, SkillResult, SkillStatus
+from itat.utils.services import ServiceManager
 
 
 class WebServiceSkill(BaseSkill):
@@ -24,15 +25,9 @@ class WebServiceSkill(BaseSkill):
         self.target_service = service_name
 
     def check_health(self) -> SkillResult:
-        """Check systemd status of the web service."""
+        """Check status of the web service using ServiceManager."""
         try:
-            res = subprocess.run(
-                ["systemctl", "is-active", self.service_name],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            is_active = res.stdout.strip() == "active"
+            is_active = ServiceManager.is_service_active(self.service_name)
             if is_active:
                 return SkillResult(
                     status=SkillStatus.OK,
@@ -43,13 +38,13 @@ class WebServiceSkill(BaseSkill):
                 return SkillResult(
                     status=SkillStatus.WARNING,
                     message=f"Service '{self.service_name}' is inactive or stopped.",
-                    details={"service": self.service_name, "active": False, "raw_status": res.stdout.strip()},
-                    recommendations=[f"Run 'itat skill fix {self.name}' or 'systemctl start {self.service_name}'"],
+                    details={"service": self.service_name, "active": False},
+                    recommendations=[f"Run 'itat skill fix {self.name}' or restart service '{self.service_name}'"],
                 )
         except Exception as e:
             return SkillResult(
                 status=SkillStatus.ERROR,
-                message=f"Unable to query systemctl for '{self.service_name}': {str(e)}",
+                message=f"Unable to query status for '{self.service_name}': {str(e)}",
                 details={"error": str(e)},
             )
 
@@ -96,7 +91,7 @@ class WebServiceSkill(BaseSkill):
         )
 
     def auto_fix(self) -> SkillResult:
-        """Attempt to restart the service if inactive."""
+        """Attempt to restart the service using ServiceManager."""
         health = self.check_health()
         if health.is_healthy():
             return SkillResult(
@@ -104,26 +99,15 @@ class WebServiceSkill(BaseSkill):
                 message=f"Service '{self.service_name}' is already healthy. No action required.",
             )
 
-        try:
-            res = subprocess.run(
-                ["sudo", "systemctl", "restart", self.service_name],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            if res.returncode == 0:
-                return SkillResult(
-                    status=SkillStatus.OK,
-                    message=f"Successfully restarted service '{self.service_name}'.",
-                    actions_taken=[f"Restarted {self.service_name} via systemctl"],
-                )
-            else:
-                return SkillResult(
-                    status=SkillStatus.ERROR,
-                    message=f"Failed to restart '{self.service_name}': {res.stderr.strip()}",
-                )
-        except Exception as e:
+        success, msg = ServiceManager.restart_service(self.service_name)
+        if success:
             return SkillResult(
-                status=SkillStatus.CRITICAL,
-                message=f"Auto-fix failed with exception: {str(e)}",
+                status=SkillStatus.OK,
+                message=f"Successfully restarted service '{self.service_name}'.",
+                actions_taken=[f"Restarted {self.service_name} via ServiceManager"],
+            )
+        else:
+            return SkillResult(
+                status=SkillStatus.ERROR,
+                message=msg,
             )

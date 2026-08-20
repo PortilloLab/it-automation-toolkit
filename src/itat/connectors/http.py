@@ -46,3 +46,23 @@ class HTTPConnector(BaseConnector):
         except (URLError, HTTPError, OSError) as e:
             print(f"[!] HTTP Connector Error: {e}")
             return False
+
+    def send_alert(self, title: str, text: str, severity: str = "INFO") -> bool:
+        """
+        Send formatted alert message over Webhook (supports Slack, Discord, and REST endpoints).
+        """
+        url_lower = self.endpoint_url.lower()
+
+        if "slack.com" in url_lower:
+            payload = {"text": f"🚨 *{title}* [{severity}]\n{text}"}
+        elif "discord.com" in url_lower:
+            payload = {"content": f"🚨 **{title}** [{severity}]\n{text}"}
+        else:
+            payload = {
+                "event": "ITAT_ALERT",
+                "title": title,
+                "text": text,
+                "severity": severity,
+            }
+
+        return self.send(payload)
