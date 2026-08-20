@@ -8,6 +8,7 @@ from itat.skills import (
     PowerBISkill,
     PostgreSQLSkill,
     DockerSkill,
+    AntivirusSkill,
     SkillStatus,
 )
 
@@ -30,6 +31,7 @@ class SkillCommand(Command):
         self.manager.register(MySQLSkill())
         self.manager.register(PostgreSQLSkill())
         self.manager.register(PowerBISkill())
+        self.manager.register(AntivirusSkill())
 
     def run(self, args: Optional[List[str]] = None) -> int:
         args = args or []

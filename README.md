@@ -33,6 +33,7 @@
     - 🐬 **MySQL / MariaDB (`MySQLSkill`)**: Diagnóstico de socket TCP 3306, verificación del servicio y remediación.
     - 🐘 **PostgreSQL (`PostgreSQLSkill`)**: Inspección de puerto 5432, salud del servicio y análisis de logs.
     - 📊 **Power BI On-Premises Gateway (`PowerBISkill`)**: Verificación de conectividad HTTPS a la nube (`api.powerbi.com`), diagnóstico del servicio de Gateway y análisis de logs.
+    - 🛡️ **Antivirus y Detección de Malware (`AntivirusSkill`)**: Inspección de procesos sospechosos corriendo en carpetas temporales (`/tmp`, `AppData/Temp`), mineros de criptomonedas, verificación de ClamAV / Windows Defender y remediación (*kill*) de procesos maliciosos.
 
 ---
 

@@ -9,6 +9,7 @@ from .mysql import MySQLSkill
 from .powerbi import PowerBISkill
 from .postgresql import PostgreSQLSkill
 from .docker import DockerSkill
+from .antivirus import AntivirusSkill
 
 __all__ = [
     "BaseSkill",
@@ -20,4 +21,5 @@ __all__ = [
     "PowerBISkill",
     "PostgreSQLSkill",
     "DockerSkill",
+    "AntivirusSkill",
 ]

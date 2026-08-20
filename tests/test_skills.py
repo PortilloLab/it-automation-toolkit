@@ -154,10 +154,21 @@ def test_ensure_export_path():
     assert path1.endswith("test_report.html")
 
 
+from itat.skills.antivirus import AntivirusSkill
+
+
+def test_antivirus_skill():
+    av = AntivirusSkill()
+    health = av.check_health()
+    assert health.status in (SkillStatus.OK, SkillStatus.WARNING, SkillStatus.CRITICAL)
+    assert av.name == "antivirus"
+
+
 if __name__ == "__main__":
     test_base_skill_and_manager()
     test_mysql_skill_mocked()
     test_powerbi_skill_mocked()
     test_powerbi_gateway_status_fails_closed_on_unknown()
     test_webservice_skill()
+    test_antivirus_skill()
     print("All skill unit tests passed!")
