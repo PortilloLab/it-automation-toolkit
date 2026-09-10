@@ -11,6 +11,7 @@ from .postgresql import PostgreSQLSkill
 from .docker import DockerSkill
 from .antivirus import AntivirusSkill
 from .ssl_cert import SSLCertificateSkill
+from .system_update import SystemUpdateSkill
 
 __all__ = [
     "BaseSkill",
@@ -24,4 +25,5 @@ __all__ = [
     "DockerSkill",
     "AntivirusSkill",
     "SSLCertificateSkill",
+    "SystemUpdateSkill",
 ]

@@ -35,6 +35,7 @@
     - 📊 **Power BI On-Premises Gateway (`PowerBISkill`)**: Verificación de conectividad HTTPS a la nube (`api.powerbi.com`), diagnóstico del servicio de Gateway y análisis de logs.
     - 🛡️ **Antivirus y Detección de Malware (`AntivirusSkill`)**: Inspección de procesos sospechosos corriendo en carpetas temporales (`/tmp`, `AppData/Temp`), mineros de criptomonedas, verificación de ClamAV / Windows Defender y remediación (*kill*) de procesos maliciosos.
     - 🔒 **Certificados SSL/TLS (`SSLCertificateSkill`)**: Verificación de fecha de expiración, validación de certificados HTTPS de dominios y servicios web locales, análisis de logs de renovación y soporte para autoreparación (*auto-fix*) con `certbot renew`.
+    - 📦 **Parches y Actualizaciones de Seguridad del SO (`SystemUpdateSkill`)**: Detección de actualizaciones críticas pendientes en Linux (`apt`, `dnf`, `pacman`), Windows (`Windows Update`) y macOS, análisis de bitácoras de empaquetado y aplicación automatizada de parches con registro de ticket.
 
 ---
 

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ITAT User Manual</title>
+<style>
+    body {
+        font-family: 'Liberation Sans', 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #1e293b;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    h1, h2, h3, h4 {
+        color: #0f172a;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 6px;
+    }
+    h1 { font-size: 24pt; color: #0284c7; border-bottom: 3px solid #0284c7; margin-bottom: 20px; }
+    h2 { font-size: 16pt; margin-top: 24px; color: #0f172a; }
+    h3 { font-size: 13pt; color: #334155; }
+    code {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 10pt;
+    }
+    pre {
+        background-color: #0f172a;
+        color: #f8fafc;
+        padding: 14px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    pre code {
+        background-color: transparent;
+        color: #f8fafc;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+    }
+    th, td {
+        border: 1px solid #cbd5e1;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #e2e8f0;
+        font-weight: bold;
+    }
+    blockquote {
+        border-left: 4px solid #0284c7;
+        margin: 0;
+        padding-left: 16px;
+        color: #475569;
+    }
+</style>
+</head>
+<body>
+<h1 id="manual-de-usuario-it-automation-toolkit-itat">📖 Manual de Usuario - IT Automation Toolkit (ITAT)</h1>
+<p>Bienvenido al <strong>Manual de Usuario oficial de ITAT</strong>. Esta guía contiene todas las instrucciones detalladas para instalar, utilizar y extender el kit de automatización de TI.</p>
+<hr />
+<h2 id="indice">📋 Índice</h2>
+<ol>
+<li><a href="#1-instalación-y-configuración-inicial">Instalación y Configuración Inicial</a></li>
+<li><a href="#2-soporte-multilingüe-i18n">Soporte Multilingüe (i18n)</a></li>
+<li><a href="#3-comandos-de-la-cli">Comandos de la CLI</a></li>
+<li><a href="#itat-inventory"><code>itat inventory</code></a></li>
+<li><a href="#itat-doctor"><code>itat doctor</code></a></li>
+<li><a href="#itat-audit"><code>itat audit</code></a></li>
+<li><a href="#itat-skill"><code>itat skill</code></a></li>
+<li><a href="#itat-ticket"><code>itat ticket</code></a></li>
+<li><a href="#4-gestión-de-tickets-de-soporte-itsm">Gestión de Tickets de Soporte (ITSM)</a></li>
+<li><a href="#5-generación-de-reportes-ejecutivos">Generación de Reportes Ejecutivos</a></li>
+</ol>
+<hr />
+<h2 id="1-instalacion-y-configuracion-inicial">1. Instalación y Configuración Inicial</h2>
+<h3 id="requisitos-previos">Requisitos previos:</h3>
+<ul>
+<li>Python 3.11 o superior.</li>
+<li>Git.</li>
+</ul>
+<h3 id="pasos-de-instalacion">Pasos de instalación:</h3>
+<pre><code class="language-bash">git clone https://github.com/PortilloLab/it-automation-toolkit.git
+cd it-automation-toolkit
+
+# Crear entorno virtual
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Instalar CLI en modo desarrollo
+pip install -e .
+</code></pre>
+<hr />
+<h2 id="2-soporte-multilingue-i18n">2. Soporte Multilingüe (i18n)</h2>
+<p>ITAT admite <strong>Español (<code>es</code>)</strong> e <strong>Inglés (<code>en</code>)</strong> para adaptar los textos de salida en terminal y reportes.</p>
+<p>Por defecto, ITAT opera en español. Para especificar el idioma o consultar traducciones:</p>
+<pre><code class="language-bash">itat --help
+</code></pre>
+<hr />
+<h2 id="3-comandos-de-la-cli">3. Comandos de la CLI</h2>
+<h3 id="itat-inventory"><code>itat inventory</code></h3>
+<p>Recolecta el inventario completo de hardware, sistema operativo, almacenamiento, interfaces de red y procesos principales.</p>
+<pre><code class="language-bash"># Salida en pantalla
+itat inventory
+
+# Exportar a HTML, Markdown y JSON
+itat inventory --html reporte.html --markdown reporte.md --json reporte.json
+</code></pre>
+<hr />
+<h3 id="itat-doctor"><code>itat doctor</code></h3>
+<p>Realiza un chequeo de salud y diagnóstico rápido del hardware, uso de CPU, RAM, espacio libre en disco <code>/</code> y conectividad a Internet.</p>
+<pre><code class="language-bash">itat doctor
+</code></pre>
+<hr />
+<h3 id="itat-audit"><code>itat audit</code></h3>
+<p>Audita la infraestructura evaluando políticas de seguridad (espacio mínimo en disco, límites de memoria RAM, ejecución en modo usuario seguro).</p>
+<pre><code class="language-bash">itat audit --html auditoria_cliente.html
+</code></pre>
+<hr />
+<h3 id="itat-skill"><code>itat skill</code></h3>
+<p>Gestión y ejecución de <strong>Skills de Soporte Especializado</strong> para servicios como Nginx, Docker, MySQL y Power BI On-Premises Gateway.</p>
+<pre><code class="language-bash"># Listar todos los skills disponibles
+itat skill list
+
+# Ejecutar diagnóstico de salud de los servicios cliente
+itat skill health
+
+# Analizar logs de errores en busca de palabras clave críticas
+itat skill logs --name mysql
+
+# Ejecutar reparación automática / reinicio del servicio
+itat skill fix mysql
+</code></pre>
+<hr />
+<h2 id="4-gestion-de-tickets-de-soporte-itsm">4. Gestión de Tickets de Soporte (ITSM)</h2>
+<p>El módulo <strong><code>itat ticket</code></strong> almacena incidencias en una base de datos ligera <strong>SQLite</strong> guardada localmente en <code>~/.itat/tickets.db</code>.</p>
+<pre><code class="language-bash"># Crear un nuevo ticket de soporte
+itat ticket create --title &quot;Fallo de conexión en base de datos&quot; --client &quot;Cliente Acme&quot; --priority HIGH
+
+# Listar tickets registrados
+itat ticket list
+
+# Ver detalle de un ticket específico
+itat ticket show 1
+
+# Resolver un ticket con notas de trabajo
+itat ticket resolve 1 --notes &quot;Se reinició servicio MySQL y se limpió espacio en disco&quot;
+
+# Exportar informe ejecutivo de tickets a HTML para cobro/cliente
+itat ticket export --html reporte_tickets.html
+</code></pre>
+<hr />
+<h2 id="5-generacion-de-reportes-ejecutivos">5. Generación de Reportes Ejecutivos</h2>
+<p>Los informes en <strong>HTML (Dark Mode Glassmorphism)</strong> están diseñados para enviarse a clientes o directores de tecnología, mostrando un diseño limpio y moderno con métricas clave.</p>
+<pre><code class="language-bash">itat inventory --html reporte_ejecutivo.html
+itat audit --html auditoria_cumplimiento.html
+itat ticket export --html estado_incidencias.html
+</code></pre>
+</body>
+</html>

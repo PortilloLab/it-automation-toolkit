@@ -45,6 +45,8 @@ htmlcov/
 !README.md
 !CONTRIBUTING.md
 !LICENSE
+!docs/*.md
+!docs/*.html
 exports/
 
 # IDE files

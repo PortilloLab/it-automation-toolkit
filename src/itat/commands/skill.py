@@ -10,6 +10,7 @@ from itat.skills import (
     DockerSkill,
     AntivirusSkill,
     SSLCertificateSkill,
+    SystemUpdateSkill,
     SkillStatus,
 )
 
@@ -34,6 +35,7 @@ class SkillCommand(Command):
         self.manager.register(PowerBISkill())
         self.manager.register(AntivirusSkill())
         self.manager.register(SSLCertificateSkill())
+        self.manager.register(SystemUpdateSkill())
 
     def run(self, args: Optional[List[str]] = None) -> int:
         args = args or []

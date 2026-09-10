@@ -196,6 +196,35 @@ def test_ssl_cert_skill_mocked():
                 assert health.status == SkillStatus.CRITICAL
 
 
+from itat.skills.system_update import SystemUpdateSkill
+
+
+def test_system_update_skill_mocked():
+    skill = SystemUpdateSkill()
+    assert skill.name == "system_update"
+
+    # 1. Fully up to date
+    with patch.object(skill, "_check_linux_updates", return_value=("apt", 0, 0, [])):
+        with patch("platform.system", return_value="Linux"):
+            health = skill.check_health()
+            assert health.status == SkillStatus.OK
+            assert "up to date" in health.message.lower()
+
+    # 2. Critical security updates pending
+    with patch.object(skill, "_check_linux_updates", return_value=("apt", 8, 4, ["libssl3", "linux-image", "curl", "systemd"])):
+        with patch("platform.system", return_value="Linux"):
+            health = skill.check_health()
+            assert health.status == SkillStatus.CRITICAL
+            assert health.details["security_updates"] == 4
+
+    # 3. Accumulated non-security updates (>15 packages)
+    with patch.object(skill, "_check_linux_updates", return_value=("apt", 25, 0, ["pkg" + str(i) for i in range(25)])):
+        with patch("platform.system", return_value="Linux"):
+            health = skill.check_health()
+            assert health.status == SkillStatus.WARNING
+            assert health.details["total_updates"] == 25
+
+
 if __name__ == "__main__":
     test_base_skill_and_manager()
     test_mysql_skill_mocked()
@@ -203,4 +232,5 @@ if __name__ == "__main__":
     test_powerbi_gateway_status_fails_closed_on_unknown()
     test_antivirus_skill()
     test_ssl_cert_skill_mocked()
+    test_system_update_skill_mocked()
     print("All skill unit tests passed!")

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ITAT Business Expansion Guide</title>
+<style>
+    body {
+        font-family: 'Liberation Sans', 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #1e293b;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    h1, h2, h3, h4 {
+        color: #0f172a;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 6px;
+    }
+    h1 { font-size: 24pt; color: #0284c7; border-bottom: 3px solid #0284c7; margin-bottom: 20px; }
+    h2 { font-size: 16pt; margin-top: 24px; color: #0f172a; }
+    h3 { font-size: 13pt; color: #334155; }
+    code {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 10pt;
+    }
+    pre {
+        background-color: #0f172a;
+        color: #f8fafc;
+        padding: 14px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    pre code {
+        background-color: transparent;
+        color: #f8fafc;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+    }
+    th, td {
+        border: 1px solid #cbd5e1;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #e2e8f0;
+        font-weight: bold;
+    }
+    blockquote {
+        border-left: 4px solid #0284c7;
+        margin: 0;
+        padding-left: 16px;
+        color: #475569;
+    }
+</style>
+</head>
+<body>
+<h1 id="guia-de-explotacion-maxima-y-modelo-de-negocio-itat">🚀 Guía de Explotación Máxima y Modelo de Negocio - ITAT</h1>
+<p>Esta guía está diseñada específicamente para transformar <strong>IT Automation Toolkit (ITAT)</strong> en tu <strong>herramienta de trabajo diaria</strong> y en el <strong>motor de tu servicio de soporte técnico para clientes</strong>.</p>
+<hr />
+<h2 id="caso-de-uso-1-vender-tu-servicio-de-soporte-tecnico-a-clientes-modelo-msp-freelance">🎯 Caso de Uso 1: Vender tu Servicio de Soporte Técnico a Clientes (Modelo MSP / Freelance)</h2>
+<h3 id="la-estrategia-de-la-auditoria-de-entrada-ganar-clientes-nuevos">💡 La Estrategia de la "Auditoría de Entrada" (Ganar Clientes Nuevos)</h3>
+<p>Cuando prospectes un nuevo cliente o empresa:</p>
+<ol>
+<li>
+<p><strong>Ofrece un Diagnóstico Inicial Gratuito o de Bajo Costo:</strong>
+   Conéctate a la infraestructura del cliente y ejecuta:
+   <code>bash
+   itat inventory --html auditoria_inicial.html
+   itat audit --html diagnostico_seguridad.html</code></p>
+</li>
+<li>
+<p><strong>Entrega el Informe HTML Ejecutivo (Dark Mode):</strong>
+   Muéstrale al cliente de forma visual y profesional las vulnerabilidades encontradas:</p>
+</li>
+<li>Discos con almacenamiento casi lleno (&gt;85%).</li>
+<li>Servicios críticos caídos o inestables (MySQL, Nginx, Power BI Gateway).</li>
+<li>
+<p>Ausencia de monitoreo preventivo.</p>
+</li>
+<li>
+<p><strong>Vende tu Plan de Mantenimiento Mensual (Iguala / Fee de Soporte):</strong>
+   Presenta una propuesta de soporte mensual preventivo que incluya:</p>
+</li>
+<li>Auditorías de cumplimiento semanales.</li>
+<li>Reparación automática de servicios caídos con <strong>ITAT Skills</strong>.</li>
+<li>Reportes de gestión de tickets al final del mes.</li>
+</ol>
+<hr />
+<h2 id="caso-de-uso-2-herramienta-esencial-en-tu-trabajo-diario-resolucion-rapida-de-incidencias">🛠️ Caso de Uso 2: Herramienta Esencial en tu Trabajo Diario (Resolución Rápida de Incidencias)</h2>
+<p>Cuando un usuario o cliente te reporte un problema (<em>"La aplicación está lenta"</em>, <em>"No funciona el sistema"</em>):</p>
+<h3 id="flujo-de-trabajo-en-3-pasos">🔄 Flujo de Trabajo en 3 Pasos:</h3>
+<pre><code>Step 1: Diagnóstico General      ➜   Step 2: Inspección de Skill      ➜   Step 3: Auto-Fix y Ticket
+    itat doctor                           itat skill health                    itat skill fix mysql
+                                          itat skill logs --name mysql         itat ticket create/resolve
+</code></pre>
+<ol>
+<li>
+<p><strong>Paso 1 - Chequeo Rápido de Infraestructura:</strong>
+   <code>bash
+   itat doctor</code>
+   <em>Te dirá de inmediato si el problema es de uso excesivo de CPU, memoria RAM agotada o caída de la red.</em></p>
+</li>
+<li>
+<p><strong>Paso 2 - Diagnóstico del Servicio Específico:</strong>
+   <code>bash
+   itat skill health
+   itat skill logs --name mysql</code>
+   <em>Identifica si la causa es MySQL fuera de servicio, un log de error o desincronización de Power BI.</em></p>
+</li>
+<li>
+<p><strong>Paso 3 - Reparación y Registro:</strong>
+   <code>bash
+   itat skill fix mysql
+   itat ticket create --title "Caída de servicio MySQL" --client "Cliente A" --priority HIGH
+   itat ticket resolve 1 --notes "Reiniciado servicio y restaurado puerto 3306"</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="caso-de-uso-3-tareas-programadas-e-informes-de-facturacion">🤖 Caso de Uso 3: Tareas Programadas e Informes de Facturación</h2>
+<h3 id="1-programar-auditoria-semanal-automatica-con-cron-linux">1. Programar Auditoría Semanal Automática con Cron (Linux)</h3>
+<p>Edita el <code>crontab</code>:</p>
+<pre><code class="language-bash">crontab -e
+</code></pre>
+<p>Agrega la siguiente línea para ejecutar la auditoría todos los lunes a las 8:00 AM:</p>
+<pre><code class="language-bash">0 8 * * 1 /home/usuario/it-automation-toolkit/.venv/bin/itat audit --html /var/www/html/reporte_semanal.html
+</code></pre>
+<h3 id="2-exportacion-de-informe-de-facturacion-mensual">2. Exportación de Informe de Facturación Mensual</h3>
+<p>Al finalizar el mes, exporta el reporte consolidado de todos los tickets resueltos para tu cliente:</p>
+<pre><code class="language-bash">itat ticket export --html reporte_mensual_cliente.html
+</code></pre>
+<p><em>Este informe prueba de manera irrefutable el valor y la cantidad de trabajo de soporte técnico que le brindaste.</em></p>
+<hr />
+<h2 id="resumen-de-beneficios-de-negocio">📈 Resumen de Beneficios de Negocio:</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Aspecto</th>
+<th style="text-align: left;">Beneficio Profesional con ITAT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Imagen Profesional</strong></td>
+<td style="text-align: left;">Reportes visuales de alto impacto (Dark Mode) en lugar de emails de texto plano.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Velocidad de Respuesta</strong></td>
+<td style="text-align: left;">Diagnóstico en segundos con <code>itat doctor</code> y <code>itat skill</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fidelización de Clientes</strong></td>
+<td style="text-align: left;">Informes de tickets resueltos que justifican el cobro de tu abono de soporte.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Escalabilidad</strong></td>
+<td style="text-align: left;">Capacidad de incorporar nuevos Skills para atender cualquier tipo de software cliente.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
