@@ -3,7 +3,13 @@ ITAT Policies package.
 """
 
 from .base import Policy, PolicyResult
-from .rules import DiskSpacePolicy, MemoryUsagePolicy, UserSecurityPolicy
+from .rules import (
+    DiskSpacePolicy,
+    MemoryUsagePolicy,
+    UserSecurityPolicy,
+    SwapUsagePolicy,
+    NetworkSecurityPolicy,
+)
 from .engine import PolicyEngine
 
 __all__ = [
@@ -12,5 +18,7 @@ __all__ = [
     "DiskSpacePolicy",
     "MemoryUsagePolicy",
     "UserSecurityPolicy",
+    "SwapUsagePolicy",
+    "NetworkSecurityPolicy",
     "PolicyEngine",
 ]

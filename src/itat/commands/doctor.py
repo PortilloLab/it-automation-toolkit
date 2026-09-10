@@ -80,8 +80,8 @@ class DoctorCommand(Command):
 
         # Check 4: Network Connectivity
         try:
-            socket.setdefaulttimeout(3)
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(3)
                 s.connect(("8.8.8.8", 53))
             status = "[ OK ]"
             checks_passed += 1

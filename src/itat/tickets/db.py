@@ -4,6 +4,7 @@ SQLite Ticket Database for ITAT Support & ITSM module.
 
 import os
 import sqlite3
+import tempfile
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -15,11 +16,26 @@ class TicketDatabase:
 
     def __init__(self, db_path: Optional[str] = None):
         if not db_path:
-            config_dir = os.path.expanduser("~/.itat")
-            os.makedirs(config_dir, exist_ok=True)
-            db_path = os.path.join(config_dir, "tickets.db")
+            env_path = os.environ.get("ITAT_DB_PATH")
+            if env_path:
+                db_path = env_path
+            else:
+                try:
+                    config_dir = os.path.expanduser("~/.itat")
+                    os.makedirs(config_dir, exist_ok=True)
+                    db_path = os.path.join(config_dir, "tickets.db")
+                except OSError:
+                    # Fallback for read-only filesystem, sandbox or CI environments
+                    fallback_dir = tempfile.gettempdir()
+                    db_path = os.path.join(fallback_dir, "itat_tickets.db")
+
         self.db_path = db_path
-        self._init_db()
+        try:
+            self._init_db()
+        except OSError:
+            # Fallback to in-memory SQLite if target path is completely unwritable
+            self.db_path = ":memory:"
+            self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)

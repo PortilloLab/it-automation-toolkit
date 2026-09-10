@@ -5,6 +5,7 @@ Inventory command.
 from itat.core.command import Command
 from itat.inventory.scanner import scan
 from itat.inventory.export import export_json, export_markdown
+from itat.reports import generate_html_report
 from itat.core.serialization import to_dict
 from itat.i18n import t
 
@@ -29,20 +30,20 @@ class InventoryCommand(Command):
         users_info = to_dict(inventory.get("users", {}))
 
         # Parse export arguments
-        if "--json" in args:
-            idx = args.index("--json")
-            if idx + 1 < len(args):
-                out_path = args[idx + 1]
-                saved_path = export_json(inventory, out_path)
-                print(f"[+] Inventory exported to JSON: {saved_path}")
+        json_path = self._get_arg_value(args, "--json")
+        if json_path:
+            saved_path = export_json(inventory, json_path)
+            print(f"[+] Inventory exported to JSON: {saved_path}")
 
-        if "--markdown" in args or "-m" in args:
-            flag = "--markdown" if "--markdown" in args else "-m"
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                out_path = args[idx + 1]
-                saved_path = export_markdown(inventory, out_path)
-                print(f"[+] Inventory exported to Markdown: {saved_path}")
+        md_path = self._get_arg_value(args, "--markdown") or self._get_arg_value(args, "-m")
+        if md_path:
+            saved_path = export_markdown(inventory, md_path)
+            print(f"[+] Inventory exported to Markdown: {saved_path}")
+
+        html_path = self._get_arg_value(args, "--html")
+        if html_path:
+            saved_path = generate_html_report(inventory, output_path=html_path)
+            print(f"[+] Inventory exported to HTML: {saved_path}")
 
         print("=" * 60)
         print(f"IT Automation Toolkit - {t('inventory')}")

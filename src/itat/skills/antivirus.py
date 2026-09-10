@@ -139,8 +139,11 @@ class AntivirusSkill(BaseSkill):
         suspicious = []
         temp_dirs = ["/tmp", "/var/tmp", "/dev/shm", "\\appdata\\local\\temp", "\\temp"]
 
+        current_pid = os.getpid()
         for proc in psutil.process_iter(["pid", "name", "exe", "cpu_percent"]):
             try:
+                if proc.info.get("pid") == current_pid:
+                    continue
                 exe = proc.info.get("exe") or ""
                 exe_lower = exe.lower()
                 if any(td in exe_lower for td in temp_dirs):

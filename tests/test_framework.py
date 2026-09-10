@@ -92,10 +92,29 @@ def test_html_xss_protection():
             os.remove(out_path)
 
 
+def test_inventory_html_export():
+    cmd = InventoryCommand()
+    with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp:
+        out_path = tmp.name
+
+    try:
+        ret = cmd.run(["--html", out_path])
+        assert ret == 0
+        assert os.path.exists(out_path)
+        with open(out_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        assert "<!DOCTYPE html>" in content
+        assert "IT Automation Toolkit" in content
+    finally:
+        if os.path.exists(out_path):
+            os.remove(out_path)
+
+
 if __name__ == "__main__":
     test_command_registry()
     test_inventory_scanner()
     test_policy_engine()
     test_commands_instantiation()
     test_html_xss_protection()
+    test_inventory_html_export()
     print("All framework unit tests passed!")
