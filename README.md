@@ -20,8 +20,8 @@
   - Evalúa la carga del procesador, presión de memoria, capacidad del disco raíz, promedio de carga y conectividad externa/DNS.
 - 🛡️ **Auditoría de Seguridad y Cumplimiento (`itat audit`)**
   - Verifica el estado del sistema contra políticas de seguridad configurables (`DiskSpacePolicy`, `MemoryUsagePolicy`, `UserSecurityPolicy`).
-- 🚨 **Notificaciones y Alertas vía Webhook (`--webhook <URL>`)**
-  - Envío automático de alertas formateadas para **Slack**, **Discord**, **Telegram** o endpoints **REST/JSON** ante eventos de auditoría o fallos en el sistema.
+- 🚨 **Notificaciones Multi-Canal (Webhooks, Telegram Bot y Correo SMTP)**
+  - Envío automático de alertas formateadas para **Slack**, **Discord**, **Telegram** (`--telegram`) y **Email** (`--email`) con adjuntos de reportes ejecutivos ante violaciones de auditoría o fallos en el sistema.
 - 🎫 **Gestión de Tickets e Incidentes ITSM (`itat ticket`)**
   - Base de datos SQLite integrada para registrar incidentes de clientes, notas de resolución, seguimiento de estados y exportación de reportes ejecutivos de facturación.
 - ⚙️ **Abstracción de Servicios Multiplataforma (`ServiceManager`)**
@@ -99,6 +99,12 @@ itat audit --html auditoria.html
 
 # Ejecutar auditoría y enviar alerta a Slack o Discord si se detectan fallos
 itat audit --webhook https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+
+# Enviar alerta instantánea al móvil mediante Telegram Bot
+itat audit --telegram "BOT_TOKEN:CHAT_ID"
+
+# Enviar alerta por correo SMTP adjuntando automáticamente el reporte HTML
+itat audit --html auditoria.html --email soporte@empresa.com
 ```
 
 ### 🧩 Skills Especializados y Remedración Automática

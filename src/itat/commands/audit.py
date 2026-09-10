@@ -7,7 +7,7 @@ from itat.inventory.scanner import scan
 from itat.policies import PolicyEngine
 from itat.inventory.export import export_json, export_markdown
 from itat.reports import generate_html_report
-from itat.connectors.http import HTTPConnector
+from itat.connectors import HTTPConnector, TelegramConnector, EmailConnector
 from itat.i18n import t
 
 
@@ -50,44 +50,64 @@ class AuditCommand(Command):
         summary_msg = f"{len(results) - failures - warnings} {t('passed')} | {warnings} {t('warnings')} | {failures} {t('failures')}"
         print(f"Audit Summary: {summary_msg}")
 
-        # Handle Webhook Notification
-        if "--webhook" in args:
-            idx = args.index("--webhook")
-            if idx + 1 < len(args):
-                webhook_url = args[idx + 1]
-                conn = HTTPConnector(webhook_url)
-                severity_level = "CRITICAL" if failures > 0 else ("WARNING" if warnings > 0 else "INFO")
-                alert_text = f"Host: {inventory['system'].hostname}\nSummary: {summary_msg}"
-                if failures > 0 or warnings > 0:
-                    violations = [f"• {r.policy_name}: {r.message}" for r in results if not r.passed]
-                    alert_text += "\n\nViolations:\n" + "\n".join(violations)
+        severity_level = "CRITICAL" if failures > 0 else ("WARNING" if warnings > 0 else "INFO")
+        alert_text = f"Host: {inventory['system'].hostname}\nSummary: {summary_msg}"
+        if failures > 0 or warnings > 0:
+            violations = [f"• {r.policy_name}: {r.message}" for r in results if not r.passed]
+            alert_text += "\n\nViolations:\n" + "\n".join(violations)
 
-                if conn.send_alert("ITAT Security & Audit Alert", alert_text, severity=severity_level):
-                    print(f"\n[+] Webhook alert sent successfully to: {webhook_url}")
-                else:
-                    print(f"\n[!] Failed sending webhook alert to: {webhook_url}")
+        # Handle Webhook Notification (Slack/Discord)
+        webhook_url = self._get_arg_value(args, "--webhook")
+        if webhook_url:
+            conn = HTTPConnector(webhook_url)
+            if conn.send_alert("ITAT Security & Audit Alert", alert_text, severity=severity_level):
+                print(f"\n[+] Webhook alert sent successfully to: {webhook_url}")
+            else:
+                print(f"\n[!] Failed sending webhook alert to: {webhook_url}")
 
-        # Handle exports
-        if "--html" in args:
-            idx = args.index("--html")
-            if idx + 1 < len(args):
-                out = args[idx + 1]
-                saved_out = generate_html_report(inventory, results, out)
-                print(f"\n[+] HTML Executive Report generated: {saved_out}")
+        # Handle Telegram Notification
+        if "--telegram" in args:
+            tg_arg = self._get_arg_value(args, "--telegram")
+            bot_token, chat_id = None, None
+            if tg_arg and ":" in tg_arg:
+                parts = tg_arg.split(":", 1)
+                bot_token, chat_id = parts[0], parts[1]
 
-        if "--markdown" in args or "-m" in args:
-            flag = "--markdown" if "--markdown" in args else "-m"
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                out = args[idx + 1]
-                saved_out = export_markdown(inventory, out)
-                print(f"[+] Audit Markdown exported: {saved_out}")
+            tg_conn = TelegramConnector(bot_token=bot_token, chat_id=chat_id)
+            if tg_conn.send_alert("ITAT Security & Audit Alert", alert_text, severity=severity_level):
+                print(f"\n[+] Telegram alert sent successfully (Chat ID: {tg_conn.chat_id})")
+            else:
+                print("\n[!] Failed sending Telegram alert. Check bot token and chat ID.")
 
-        if "--json" in args:
-            idx = args.index("--json")
-            if idx + 1 < len(args):
-                out = args[idx + 1]
-                saved_out = export_json(inventory, out)
-                print(f"[+] Audit JSON exported: {saved_out}")
+        # Handle exports first (so email can attach HTML if generated)
+        saved_html = None
+        html_out = self._get_arg_value(args, "--html")
+        if html_out:
+            saved_html = generate_html_report(inventory, results, html_out)
+            print(f"\n[+] HTML Executive Report generated: {saved_html}")
+
+        md_out = self._get_arg_value(args, "--markdown") or self._get_arg_value(args, "-m")
+        if md_out:
+            saved_md = export_markdown(inventory, md_out)
+            print(f"[+] Audit Markdown exported: {saved_md}")
+
+        json_out = self._get_arg_value(args, "--json")
+        if json_out:
+            saved_json = export_json(inventory, json_out)
+            print(f"[+] Audit JSON exported: {saved_json}")
+
+        # Handle Email Notification
+        recipient = self._get_arg_value(args, "--email")
+        if recipient or "--email" in args:
+            email_conn = EmailConnector(default_recipient=recipient)
+            if email_conn.send_alert(
+                title="ITAT Security & Audit Alert",
+                text=alert_text,
+                severity=severity_level,
+                attachment_path=saved_html,
+            ):
+                print(f"\n[+] Email alert sent successfully to: {recipient or email_conn.default_recipient}")
+            else:
+                print(f"\n[!] Failed sending email alert to: {recipient or email_conn.default_recipient}")
 
         return 0 if failures == 0 else 1
