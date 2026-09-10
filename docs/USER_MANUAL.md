@@ -75,10 +75,22 @@ itat doctor
 ---
 
 ### `itat audit`
-Audita la infraestructura evaluando políticas de seguridad (espacio mínimo en disco, límites de memoria RAM, ejecución en modo usuario seguro).
+Audita la infraestructura evaluando políticas de seguridad (espacio mínimo en disco, límites de memoria RAM, swap y ejecución en modo usuario estándar), con soporte para perfiles multi-cliente y canales de alerta.
 
 ```bash
+# Auditoría con perfil predeterminado y reporte HTML
 itat audit --html auditoria_cliente.html
+
+# Auditoría con perfil personalizado de cliente
+itat audit --config configs/client_enterprise.json
+
+# Despachar alertas a Webhook (Slack/Discord), Telegram y Correo SMTP
+itat audit --webhook https://hooks.slack.com/services/...
+itat audit --telegram "BOT_TOKEN:CHAT_ID"
+itat audit --email soc@empresa.com
+
+# Ejecutar con perfil pero sin emitir alertas
+itat audit --config configs/client_enterprise.json --no-alerts
 ```
 
 ---

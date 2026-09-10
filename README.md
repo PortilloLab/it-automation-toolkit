@@ -91,11 +91,14 @@ itat inventory --html reporte.html --markdown reporte.md --json reporte.json
 itat doctor
 ```
 
-### 🛡️ Auditoría de Seguridad y Alertas por Webhook
+### 🛡️ Auditoría de Seguridad, Perfiles Multi-Cliente y Alertas
 
 ```bash
-# Ejecutar auditoría y generar reporte HTML
+# Ejecutar auditoría estándar y generar reporte HTML
 itat audit --html auditoria.html
+
+# Ejecutar auditoría usando el perfil de configuración de un cliente específico
+itat audit --config configs/client_enterprise.json
 
 # Ejecutar auditoría y enviar alerta a Slack o Discord si se detectan fallos
 itat audit --webhook https://hooks.slack.com/services/YOUR/WEBHOOK/URL
@@ -105,6 +108,33 @@ itat audit --telegram "BOT_TOKEN:CHAT_ID"
 
 # Enviar alerta por correo SMTP adjuntando automáticamente el reporte HTML
 itat audit --html auditoria.html --email soporte@empresa.com
+
+# Suprimir el envío de alertas automáticas definidas en el perfil
+itat audit --config configs/client_enterprise.json --no-alerts
+```
+
+#### 📁 Configuración de Perfiles Multi-Cliente (`configs/`)
+Permite definir umbrales personalizados de CPU/RAM/Disco y destinos de alerta por cliente o entorno:
+
+```json
+{
+  "client_name": "Corporación Alpha Enterprise",
+  "environment": "Production",
+  "audit": {
+    "disk_max_percent": 90.0,
+    "memory_max_percent": 92.0,
+    "swap_max_percent": 75.0,
+    "require_standard_user": true,
+    "require_network_active": true
+  },
+  "alerts": {
+    "webhook_url": "https://hooks.slack.com/services/...",
+    "telegram_bot_token": "123456:ABC...",
+    "telegram_chat_id": "-100123456789",
+    "email_recipient": "soc@empresa.com",
+    "email_sender": "monitoring@portillolab.com"
+  }
+}
 ```
 
 ### 🧩 Skills Especializados y Remedración Automática

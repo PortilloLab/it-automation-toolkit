@@ -2,7 +2,7 @@
 Policy Engine for auditing system compliance.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from itat.core.serialization import to_dict
 from .base import Policy, PolicyResult
 from .rules import DiskSpacePolicy, MemoryUsagePolicy, UserSecurityPolicy, SwapUsagePolicy, NetworkSecurityPolicy
@@ -21,6 +21,26 @@ class PolicyEngine:
             UserSecurityPolicy(),
             NetworkSecurityPolicy(),
         ]
+
+    @classmethod
+    def from_config(cls, config: Optional[Any] = None) -> "PolicyEngine":
+        """
+        Factory method to instantiate PolicyEngine using an AuditConfig profile.
+        """
+        if not config:
+            return cls()
+
+        policies = [
+            DiskSpacePolicy(max_usage_percent=getattr(config, "disk_max_percent", 85.0)),
+            MemoryUsagePolicy(max_usage_percent=getattr(config, "memory_max_percent", 85.0)),
+            SwapUsagePolicy(max_usage_percent=getattr(config, "swap_max_percent", 80.0)),
+        ]
+        if getattr(config, "require_standard_user", True):
+            policies.append(UserSecurityPolicy())
+        if getattr(config, "require_network_active", True):
+            policies.append(NetworkSecurityPolicy())
+
+        return cls(policies=policies)
 
     def add_policy(self, policy: Policy) -> None:
         """

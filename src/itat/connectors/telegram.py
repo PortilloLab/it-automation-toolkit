@@ -108,3 +108,4 @@ class TelegramConnector(BaseConnector):
         )
 
         return self.send({"text": formatted_msg, "parse_mode": "HTML"})
+

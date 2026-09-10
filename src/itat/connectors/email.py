@@ -177,3 +177,4 @@ class EmailConnector(BaseConnector):
             attachment_path=attachment_path,
             is_html=True,
         )
+

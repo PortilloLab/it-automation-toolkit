@@ -1,0 +1,18 @@
+{
+  "client_name": "Corporación Alpha Enterprise",
+  "environment": "Critical-Production",
+  "audit": {
+    "disk_max_percent": 90.0,
+    "memory_max_percent": 92.0,
+    "swap_max_percent": 75.0,
+    "require_standard_user": true,
+    "require_network_active": true
+  },
+  "alerts": {
+    "webhook_url": "https://hooks.slack.com/services/T00/B00/XXXXX",
+    "telegram_bot_token": "123456789:ABCdefGHIjklMNOpqrSTUvwxYZ",
+    "telegram_chat_id": "-1001987654321",
+    "email_recipient": "soc@corporacionalpha.com",
+    "email_sender": "monitoring@portillolab.com"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "client_name": "Standard Infrastructure",
+  "environment": "Production",
+  "audit": {
+    "disk_max_percent": 85.0,
+    "memory_max_percent": 85.0,
+    "swap_max_percent": 80.0,
+    "require_standard_user": true,
+    "require_network_active": true
+  },
+  "alerts": {
+    "webhook_url": null,
+    "telegram_bot_token": null,
+    "telegram_chat_id": null,
+    "email_recipient": null,
+    "email_sender": null
+  }
+}
