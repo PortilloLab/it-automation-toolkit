@@ -2,11 +2,11 @@
 ITAT Core Package.
 """
 
-from .application import Application
 from .command import Command
-from .registry import CommandRegistry
 from .serialization import to_dict
 from .config import ConfigManager, ClientProfile, AuditConfig, AlertConfig
+from .registry import CommandRegistry
+from .application import Application
 
 __all__ = [
     "Application",

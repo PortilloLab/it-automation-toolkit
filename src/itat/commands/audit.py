@@ -7,7 +7,7 @@ from itat.core.config import ConfigManager
 from itat.inventory.scanner import scan
 from itat.policies import PolicyEngine
 from itat.inventory.export import export_json, export_markdown
-from itat.reports import generate_html_report
+from itat.reports import generate_html_report, generate_pdf_report
 from itat.connectors import HTTPConnector, TelegramConnector, EmailConnector
 from itat.i18n import t
 
@@ -55,17 +55,32 @@ class AuditCommand(Command):
         print(f"Audit Summary: {summary_msg}")
 
         severity_level = "CRITICAL" if failures > 0 else ("WARNING" if warnings > 0 else "INFO")
-        alert_text = f"Host: {inventory['system'].hostname} | Client: {profile.client_name}\nSummary: {summary_msg}"
+        sys_obj = inventory.get("system", {})
+        hostname = getattr(sys_obj, "hostname", None) or (sys_obj.get("hostname") if isinstance(sys_obj, dict) else "localhost")
+        alert_text = f"Host: {hostname} | Client: {profile.client_name}\nSummary: {summary_msg}"
         if failures > 0 or warnings > 0:
             violations = [f"• {r.policy_name}: {r.message}" for r in results if not r.passed]
             alert_text += "\n\nViolations:\n" + "\n".join(violations)
 
-        # Handle exports first (so email can attach HTML if generated)
+        # Handle exports first (so email can attach PDF or HTML if generated)
         saved_html = None
         html_out = self._get_arg_value(args, "--html")
         if html_out:
             saved_html = generate_html_report(inventory, results, html_out)
             print(f"\n[+] HTML Executive Report generated: {saved_html}")
+
+        saved_pdf = None
+        pdf_out = self._get_arg_value(args, "--pdf")
+        if pdf_out or "--pdf" in args:
+            pdf_target = pdf_out if (pdf_out and not pdf_out.startswith("-")) else "audit_report.pdf"
+            saved_pdf = generate_pdf_report(
+                inventory_data=inventory,
+                audit_results=results,
+                output_path=pdf_target,
+                client_name=profile.client_name,
+                environment=profile.environment,
+            )
+            print(f"\n[+] Executive PDF Report generated: {saved_pdf}")
 
         md_out = self._get_arg_value(args, "--markdown") or self._get_arg_value(args, "-m")
         if md_out:
@@ -103,6 +118,7 @@ class AuditCommand(Command):
                     print("\n[!] Failed sending Telegram alert. Check bot token and chat ID.")
 
             # Handle Email Notification
+            report_attachment = saved_pdf or saved_html
             recipient = self._get_arg_value(args, "--email") or profile.alerts.email_recipient
             sender = profile.alerts.email_sender
             if recipient or "--email" in args:
@@ -111,7 +127,7 @@ class AuditCommand(Command):
                     title=f"ITAT Security Alert [{profile.client_name}]",
                     text=alert_text,
                     severity=severity_level,
-                    attachment_path=saved_html,
+                    attachment_path=report_attachment,
                 ):
                     print(f"\n[+] Email alert sent successfully to: {recipient or email_conn.default_recipient}")
                 else:

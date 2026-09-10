@@ -80,8 +80,8 @@ itat menu
 # Ver inventario completo en la terminal
 itat inventory
 
-# Exportar reportes ejecutivos a la carpeta ./exports/
-itat inventory --html reporte.html --markdown reporte.md --json reporte.json
+# Exportar reportes ejecutivos (PDF corporativo, HTML, Markdown y JSON)
+itat inventory --pdf inventario.pdf --html reporte.html --markdown reporte.md --json reporte.json
 ```
 
 ### 🩺 Diagnóstico de Salud (System Doctor)
@@ -91,11 +91,14 @@ itat inventory --html reporte.html --markdown reporte.md --json reporte.json
 itat doctor
 ```
 
-### 🛡️ Auditoría de Seguridad, Perfiles Multi-Cliente y Alertas
+### 🛡️ Auditoría de Seguridad, Perfiles Multi-Cliente y Reportes PDF
 
 ```bash
 # Ejecutar auditoría estándar y generar reporte HTML
 itat audit --html auditoria.html
+
+# Generar informe ejecutivo corporativo en PDF (con KPIs, tablas y paginación)
+itat audit --pdf auditoria_ejecutiva.pdf
 
 # Ejecutar auditoría usando el perfil de configuración de un cliente específico
 itat audit --config configs/client_enterprise.json
@@ -106,8 +109,8 @@ itat audit --webhook https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 # Enviar alerta instantánea al móvil mediante Telegram Bot
 itat audit --telegram "BOT_TOKEN:CHAT_ID"
 
-# Enviar alerta por correo SMTP adjuntando automáticamente el reporte HTML
-itat audit --html auditoria.html --email soporte@empresa.com
+# Enviar alerta por correo SMTP adjuntando automáticamente el reporte PDF corporativo
+itat audit --pdf auditoria.pdf --email soporte@empresa.com
 
 # Suprimir el envío de alertas automáticas definidas en el perfil
 itat audit --config configs/client_enterprise.json --no-alerts

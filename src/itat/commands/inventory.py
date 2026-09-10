@@ -5,7 +5,7 @@ Inventory command.
 from itat.core.command import Command
 from itat.inventory.scanner import scan
 from itat.inventory.export import export_json, export_markdown
-from itat.reports import generate_html_report
+from itat.reports import generate_html_report, generate_pdf_report
 from itat.core.serialization import to_dict
 from itat.i18n import t
 
@@ -44,6 +44,12 @@ class InventoryCommand(Command):
         if html_path:
             saved_path = generate_html_report(inventory, output_path=html_path)
             print(f"[+] Inventory exported to HTML: {saved_path}")
+
+        pdf_path = self._get_arg_value(args, "--pdf")
+        if pdf_path or "--pdf" in args:
+            pdf_target = pdf_path if (pdf_path and not pdf_path.startswith("-")) else "inventory_report.pdf"
+            saved_path = generate_pdf_report(inventory, output_path=pdf_target)
+            print(f"[+] Inventory exported to PDF: {saved_path}")
 
         print("=" * 60)
         print(f"IT Automation Toolkit - {t('inventory')}")

@@ -59,8 +59,8 @@ Recolecta el inventario completo de hardware, sistema operativo, almacenamiento,
 # Salida en pantalla
 itat inventory
 
-# Exportar a HTML, Markdown y JSON
-itat inventory --html reporte.html --markdown reporte.md --json reporte.json
+# Exportar a PDF corporativo, HTML, Markdown y JSON
+itat inventory --pdf inventario.pdf --html reporte.html --markdown reporte.md --json reporte.json
 ```
 
 ---
@@ -75,19 +75,20 @@ itat doctor
 ---
 
 ### `itat audit`
-Audita la infraestructura evaluando políticas de seguridad (espacio mínimo en disco, límites de memoria RAM, swap y ejecución en modo usuario estándar), con soporte para perfiles multi-cliente y canales de alerta.
+Audita la infraestructura evaluando políticas de seguridad (espacio mínimo en disco, límites de memoria RAM, swap y ejecución en modo usuario estándar), con soporte para generación de informes PDF ejecutivos, perfiles multi-cliente y canales de alerta.
 
 ```bash
-# Auditoría con perfil predeterminado y reporte HTML
+# Auditoría con reporte HTML o PDF ejecutivo
 itat audit --html auditoria_cliente.html
+itat audit --pdf auditoria_ejecutiva.pdf
 
 # Auditoría con perfil personalizado de cliente
 itat audit --config configs/client_enterprise.json
 
-# Despachar alertas a Webhook (Slack/Discord), Telegram y Correo SMTP
+# Despachar alertas a Webhook (Slack/Discord), Telegram y Correo SMTP (adjuntando PDF)
+itat audit --pdf auditoria.pdf --email soc@empresa.com
 itat audit --webhook https://hooks.slack.com/services/...
 itat audit --telegram "BOT_TOKEN:CHAT_ID"
-itat audit --email soc@empresa.com
 
 # Ejecutar con perfil pero sin emitir alertas
 itat audit --config configs/client_enterprise.json --no-alerts

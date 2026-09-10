@@ -2,12 +2,6 @@
 Application bootstrap.
 """
 
-from itat.commands.inventory import InventoryCommand
-from itat.commands.doctor import DoctorCommand
-from itat.commands.audit import AuditCommand
-from itat.commands.version import VersionCommand
-from itat.commands.skill import SkillCommand
-from itat.commands.ticket import TicketCommand
 from itat.core.registry import CommandRegistry
 
 
@@ -23,6 +17,13 @@ class Application:
         """
         Register all application commands.
         """
+        from itat.commands.inventory import InventoryCommand
+        from itat.commands.doctor import DoctorCommand
+        from itat.commands.audit import AuditCommand
+        from itat.commands.version import VersionCommand
+        from itat.commands.skill import SkillCommand
+        from itat.commands.ticket import TicketCommand
+
         self.registry.register(InventoryCommand())
         self.registry.register(DoctorCommand())
         self.registry.register(AuditCommand())
