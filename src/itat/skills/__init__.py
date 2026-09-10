@@ -10,6 +10,7 @@ from .powerbi import PowerBISkill
 from .postgresql import PostgreSQLSkill
 from .docker import DockerSkill
 from .antivirus import AntivirusSkill
+from .ssl_cert import SSLCertificateSkill
 
 __all__ = [
     "BaseSkill",
@@ -22,4 +23,5 @@ __all__ = [
     "PostgreSQLSkill",
     "DockerSkill",
     "AntivirusSkill",
+    "SSLCertificateSkill",
 ]

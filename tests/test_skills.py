@@ -155,6 +155,8 @@ def test_ensure_export_path():
 
 
 from itat.skills.antivirus import AntivirusSkill
+from itat.skills.ssl_cert import SSLCertificateSkill
+from datetime import datetime, timezone, timedelta
 
 
 def test_antivirus_skill():
@@ -164,11 +166,41 @@ def test_antivirus_skill():
     assert av.name == "antivirus"
 
 
+def test_ssl_cert_skill_mocked():
+    skill = SSLCertificateSkill(target_host="example.com", target_port=443)
+    assert skill.name == "ssl_cert"
+
+    # 1. Healthy certificate (60 days)
+    future_date = (datetime.now(timezone.utc) + timedelta(days=60)).strftime("%b %d %H:%M:%S %Y GMT")
+    with patch.object(skill, "_get_cert_details", return_value={"notAfter": future_date, "subject": [(( "commonName", "example.com" ),)]}):
+        with patch("socket.create_connection"):
+            with patch("ssl.create_default_context"):
+                health = skill.check_health()
+                assert health.status == SkillStatus.OK
+                assert health.details["days_remaining"] >= 58
+
+    # 2. Expiring soon (15 days -> WARNING)
+    expiring_date = (datetime.now(timezone.utc) + timedelta(days=15)).strftime("%b %d %H:%M:%S %Y GMT")
+    with patch.object(skill, "_get_cert_details", return_value={"notAfter": expiring_date, "subject": [(( "commonName", "example.com" ),)]}):
+        with patch("socket.create_connection"):
+            with patch("ssl.create_default_context"):
+                health = skill.check_health()
+                assert health.status == SkillStatus.WARNING
+
+    # 3. Expired (-2 days -> CRITICAL)
+    expired_date = (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%b %d %H:%M:%S %Y GMT")
+    with patch.object(skill, "_get_cert_details", return_value={"notAfter": expired_date, "subject": [(( "commonName", "example.com" ),)]}):
+        with patch("socket.create_connection"):
+            with patch("ssl.create_default_context"):
+                health = skill.check_health()
+                assert health.status == SkillStatus.CRITICAL
+
+
 if __name__ == "__main__":
     test_base_skill_and_manager()
     test_mysql_skill_mocked()
     test_powerbi_skill_mocked()
     test_powerbi_gateway_status_fails_closed_on_unknown()
-    test_webservice_skill()
     test_antivirus_skill()
+    test_ssl_cert_skill_mocked()
     print("All skill unit tests passed!")
