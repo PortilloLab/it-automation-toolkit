@@ -81,6 +81,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "export_opt1": "Export System Inventory to HTML",
         "export_opt2": "Export Security Audit to HTML",
         "export_opt3": "Export Support Tickets Summary to HTML",
+        "export_opt4": "Export Security Audit to Corporate PDF",
+        "export_opt5": "Export System Inventory to Corporate PDF",
     },
     "es": {
         "title": "IT Automation Toolkit",
@@ -156,6 +158,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "export_opt1": "Exportar Inventario del Sistema en HTML",
         "export_opt2": "Exportar Auditoría de Seguridad en HTML",
         "export_opt3": "Exportar Resumen de Tickets de Soporte en HTML",
+        "export_opt4": "Exportar Auditoría de Seguridad en PDF Corporativo",
+        "export_opt5": "Exportar Inventario del Sistema en PDF Corporativo",
     },
 }
 

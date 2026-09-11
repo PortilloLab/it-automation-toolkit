@@ -138,10 +138,12 @@ class InteractiveMenu:
         print(f" [1] {t('export_opt1')}")
         print(f" [2] {t('export_opt2')}")
         print(f" [3] {t('export_opt3')}")
+        print(f" [4] {t('export_opt4')}")
+        print(f" [5] {t('export_opt5')}")
         print(f" [0] {t('return_main')}")
         print("-" * 50)
 
-        choice = input(f" {t('select_option')} [0-3]: ").strip()
+        choice = input(f" {t('select_option')} [0-5]: ").strip()
         print("\n")
         if choice == "1":
             out = input("Filename [reporte_inventario.html]: ").strip() or "reporte_inventario.html"
@@ -152,6 +154,12 @@ class InteractiveMenu:
         elif choice == "3":
             out = input("Filename [reporte_tickets.html]: ").strip() or "reporte_tickets.html"
             self.app.execute("ticket", ["export", "--html", out])
+        elif choice == "4":
+            out = input("Filename [reporte_auditoria.pdf]: ").strip() or "reporte_auditoria.pdf"
+            self.app.execute("audit", ["--pdf", out, "--no-alerts"])
+        elif choice == "5":
+            out = input("Filename [reporte_inventario.pdf]: ").strip() or "reporte_inventario.pdf"
+            self.app.execute("inventory", ["--pdf", out])
         elif choice == "0":
             return
         input(f"\n{t('press_enter')}")
