@@ -25,12 +25,17 @@ keywords = [
 ]
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
+    "Topic :: System :: Systems Administration",
+    "Topic :: System :: Monitoring",
+    "Topic :: Security",
 ]
 
 dependencies = [
@@ -40,18 +45,25 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
+    "build>=1.0.0",
+    "twine>=5.0.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/PortilloLab/it-automation-toolkit"
+Documentation = "https://github.com/PortilloLab/it-automation-toolkit#readme"
 Repository = "https://github.com/PortilloLab/it-automation-toolkit"
 Issues = "https://github.com/PortilloLab/it-automation-toolkit/issues"
+Changelog = "https://github.com/PortilloLab/it-automation-toolkit/releases"
 
 [project.scripts]
 itat = "itat.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+itat = ["py.typed"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

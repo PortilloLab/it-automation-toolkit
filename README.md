@@ -39,11 +39,15 @@
 
 ---
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación y Despliegue
 
-### 1. Instalación
+### Opción A: Instalación directa desde PyPI (Recomendado)
 
-Clona el repositorio e instala el Toolkit en modo editable:
+```bash
+pip install it-automation-toolkit
+```
+
+### Opción B: Instalación para Desarrollo y Contribución
 
 ```bash
 git clone https://github.com/PortilloLab/it-automation-toolkit.git
@@ -51,13 +55,13 @@ cd it-automation-toolkit
 
 # Crear entorno virtual
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 
 # Instalar dependencias y el CLI de ITAT (modo desarrollo)
 pip install -e .[dev]
 ```
 
-### 2. Verificar la Instalación
+### Verificar la Instalación
 
 ```bash
 itat --help
